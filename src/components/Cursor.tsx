@@ -4,7 +4,10 @@ import { gsap, useGSAP, isTouch, prefersReducedMotion } from '../lib/gsap'
 /**
  * Contextual cursor: a trailing dot + lagging ring. Over interactive elements
  * the ring grows; over anything carrying `data-cursor-label` it grows larger
- * still and shows that label ("VIEW", "DRAG", "OPEN"…). Desktop only.
+ * still and shows that label ("VIEW", "READ"…). Desktop only.
+ *
+ * State is derived from each pointermove's target (not pointerover/out) so that
+ * moving between a card's children — image, text, tags — never flickers/resets.
  */
 export function Cursor() {
   const dot = useRef<HTMLDivElement>(null)
@@ -25,63 +28,43 @@ export function Cursor() {
     const rx = gsap.quickTo(ringEl, 'x', { duration: 0.4, ease: 'power3' })
     const ry = gsap.quickTo(ringEl, 'y', { duration: 0.4, ease: 'power3' })
 
+    let state = ''
+    const apply = (next: string) => {
+      if (next === state) return
+      state = next
+      const labeled = next !== '' && next !== 'generic'
+      if (labeled) labelEl.textContent = next
+      gsap.to(ringEl, {
+        width: labeled ? 80 : next === 'generic' ? 56 : 36,
+        height: labeled ? 80 : next === 'generic' ? 56 : 36,
+        borderColor: next === '' ? 'var(--color-fg-dim)' : 'var(--color-accent)',
+        backgroundColor: labeled
+          ? 'color-mix(in srgb, var(--color-accent) 14%, transparent)'
+          : 'transparent',
+        duration: 0.3,
+      })
+      gsap.to(labelEl, { opacity: labeled ? 1 : 0, duration: 0.2 })
+      gsap.to(dotEl, { opacity: next === '' ? 1 : 0, duration: 0.2 })
+    }
+
+    const interactive = 'a, button, [data-cursor], input, textarea, [data-cursor-label]'
     const move = (e: PointerEvent) => {
       dx(e.clientX)
       dy(e.clientY)
       rx(e.clientX)
       ry(e.clientY)
-    }
 
-    const reset = () => {
-      gsap.to(ringEl, {
-        width: 36,
-        height: 36,
-        borderColor: 'var(--color-fg-dim)',
-        backgroundColor: 'transparent',
-        duration: 0.3,
-      })
-      gsap.to(labelEl, { opacity: 0, duration: 0.15 })
-      gsap.to(dotEl, { opacity: 1, duration: 0.2 })
-    }
-
-    const enter = (text?: string) => {
-      if (text) {
-        labelEl.textContent = text
-        gsap.to(ringEl, {
-          width: 80,
-          height: 80,
-          borderColor: 'var(--color-accent)',
-          backgroundColor: 'color-mix(in srgb, var(--color-accent) 14%, transparent)',
-          duration: 0.3,
-        })
-        gsap.to(labelEl, { opacity: 1, duration: 0.2 })
-        gsap.to(dotEl, { opacity: 0, duration: 0.2 })
-      } else {
-        gsap.to(ringEl, { width: 56, height: 56, borderColor: 'var(--color-accent)', duration: 0.3 })
-        gsap.to(dotEl, { opacity: 0, duration: 0.2 })
-      }
-    }
-
-    const selector = 'a, button, [data-cursor], [data-cursor-label]'
-    const over = (e: Event) => {
-      const el = (e.target as HTMLElement).closest(selector) as HTMLElement | null
-      if (!el) return
-      const labeled = el.closest('[data-cursor-label]') as HTMLElement | null
-      enter(labeled?.dataset.cursorLabel)
-    }
-    const out = (e: Event) => {
-      if ((e.target as HTMLElement).closest(selector)) reset()
+      const t = e.target as HTMLElement
+      const labeledEl = t.closest?.('[data-cursor-label]') as HTMLElement | null
+      if (labeledEl) apply(labeledEl.dataset.cursorLabel || 'generic')
+      else if (t.closest?.(interactive)) apply('generic')
+      else apply('')
     }
 
     window.addEventListener('pointermove', move)
-    document.addEventListener('pointerover', over)
-    document.addEventListener('pointerout', out)
-
     return () => {
       document.body.classList.remove('custom-cursor')
       window.removeEventListener('pointermove', move)
-      document.removeEventListener('pointerover', over)
-      document.removeEventListener('pointerout', out)
     }
   }, [])
 
