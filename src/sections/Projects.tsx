@@ -53,7 +53,13 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
       className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] [transform-style:preserve-3d]"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
-        <WebGLImage src={project.image} alt={project.title} className="h-full w-full" />
+        {project.image ? (
+          <WebGLImage src={project.image} alt={project.title} className="h-full w-full" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-surface-2)] to-[var(--color-ink)] px-6 text-center">
+            <span className="font-display text-2xl font-bold text-[var(--color-fg-dim)]">{project.title}</span>
+          </div>
+        )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent" />
         {project.status === 'building' && (
           <span

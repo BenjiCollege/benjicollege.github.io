@@ -1,0 +1,164 @@
+// Auto-pull GitHub projects into the portfolio.
+//
+//   npm run generate-projects
+//
+// For each top repo it grabs: name, description, languages, demo URL, stars,
+// and a screenshot — the LIVE demo (via a screenshot service) when the repo has
+// a homepage set, otherwise GitHub's auto-generated repo-card image. Images are
+// downloaded + optimized into public/projects/. Results are written to
+// src/data/projects.generated.ts.
+//
+// Curate which repos show (and add problem/approach/highlights) in
+// src/data/projects.ts — those edits survive re-runs.
+//
+// Optional: set GITHUB_TOKEN in your env for higher API rate limits.
+
+import sharp from 'sharp'
+import { writeFile, mkdir } from 'node:fs/promises'
+import path from 'node:path'
+
+const USER = 'BenjiCollege'
+const TOP_N = 10
+// Repos to never feature: the portfolio itself + the GitHub profile-README repo.
+const EXCLUDE = new Set(['benjicollege.github.io', 'bs-portfolio', 'benjicollege'])
+
+const ROOT = path.resolve(import.meta.dirname, '..')
+const OUT_DIR = path.join(ROOT, 'public', 'projects')
+
+const gh = (extra = {}) => ({
+  headers: {
+    Accept: 'application/vnd.github+json',
+    ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}),
+    ...extra,
+  },
+})
+
+async function getRepos() {
+  const res = await fetch(`https://api.github.com/users/${USER}/repos?per_page=100&sort=pushed`, gh())
+  if (!res.ok) throw new Error(`GitHub repos fetch failed (${res.status}). ${res.status === 403 ? 'Rate-limited — set GITHUB_TOKEN.' : ''}`)
+  const repos = await res.json()
+  return repos
+    .filter((r) => !r.fork && !r.archived && !EXCLUDE.has(r.name.toLowerCase()))
+    .sort((a, b) => b.stargazers_count - a.stargazers_count || new Date(b.pushed_at) - new Date(a.pushed_at))
+    .slice(0, TOP_N)
+}
+
+async function getLanguages(repo) {
+  try {
+    const res = await fetch(repo.languages_url, gh())
+    if (!res.ok) return []
+    return Object.keys(await res.json()).slice(0, 4)
+  } catch {
+    return []
+  }
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+async function fetchImage(url, attempts = 3) {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 20000)
+      const res = await fetch(url, {
+        redirect: 'follow',
+        signal: ctrl.signal,
+        headers: {
+          // many image hosts reject non-browser user agents
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+          Accept: 'image/avif,image/webp,image/png,image/*,*/*;q=0.8',
+        },
+      })
+      clearTimeout(timer)
+      if (res.ok) {
+        const buf = Buffer.from(await res.arrayBuffer())
+        if (buf.byteLength > 2000) return buf // guard against tiny error/placeholder images
+      }
+    } catch {
+      /* retry */
+    }
+    if (i < attempts - 1) await sleep(1200)
+  }
+  return null
+}
+
+async function getScreenshot(repo) {
+  const demo = repo.homepage && /^https?:\/\//i.test(repo.homepage) ? repo.homepage : null
+  if (demo) {
+    // free, no-auth live-site screenshot service
+    const shot = await fetchImage(`https://image.thum.io/get/width/1200/crop/760/noanimate/${demo}`)
+    if (shot) return { buf: shot, kind: 'live' }
+  }
+  // fallback: GitHub's repo social-card image (always exists for public repos)
+  const card = await fetchImage(`https://opengraph.githubassets.com/${Date.now()}/${USER}/${repo.name}`)
+  if (card) return { buf: card, kind: 'repo-card' }
+  return null
+}
+
+function titleCase(name) {
+  return name
+    .replace(/[-_.]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .replace(/\bApi\b/g, 'API')
+    .trim()
+}
+
+async function run() {
+  await mkdir(OUT_DIR, { recursive: true })
+  console.log(`Fetching top ${TOP_N} repos for @${USER}…\n`)
+  const repos = await getRepos()
+
+  const projects = []
+  for (const repo of repos) {
+    const tech = await getLanguages(repo)
+    const shot = await getScreenshot(repo)
+
+    let image = ''
+    if (shot) {
+      const file = `gh-${repo.name.toLowerCase()}.png`
+      await sharp(shot.buf)
+        .resize({ width: 1100, withoutEnlargement: true })
+        .png({ compressionLevel: 9, quality: 90, palette: true })
+        .toFile(path.join(OUT_DIR, file))
+      image = `/projects/${file}`
+    }
+
+    projects.push({
+      slug: repo.name,
+      title: titleCase(repo.name),
+      blurb: repo.description || '',
+      tech,
+      image,
+      live: repo.homepage && /^https?:\/\//i.test(repo.homepage) ? repo.homepage : '',
+      source: repo.html_url,
+      stars: repo.stargazers_count,
+    })
+    console.log(`  ✓ ${repo.name.padEnd(28)} ${tech.join(', ') || '—'}  [${shot?.kind ?? 'no image'}]`)
+    await sleep(400) // be gentle with the image hosts
+  }
+
+  const file = `// AUTO-GENERATED by scripts/generate-projects.mjs — do not edit by hand.
+// Re-run: npm run generate-projects.  Curate + add details in projects.ts.
+
+export type GeneratedProject = {
+  slug: string
+  title: string
+  blurb: string
+  tech: string[]
+  image: string
+  live: string
+  source: string
+  stars: number
+}
+
+export const generatedProjects: GeneratedProject[] = ${JSON.stringify(projects, null, 2)}
+`
+  await writeFile(path.join(ROOT, 'src', 'data', 'projects.generated.ts'), file)
+  console.log(`\nWrote ${projects.length} projects → src/data/projects.generated.ts`)
+}
+
+run().catch((e) => {
+  console.error('\nError: ' + e.message)
+  process.exit(1)
+})
