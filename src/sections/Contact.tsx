@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon'
 import { MagneticLink } from '../components/MagneticLink'
 import { useMagnetic } from '../hooks/useMagnetic'
 import { Doodle } from '../components/Doodle'
+import { ContactForm } from '../components/ContactForm'
 
 function SocialCard({ s }: { s: (typeof socials)[number] }) {
   const ref = useMagnetic<HTMLAnchorElement>(0.3)
@@ -67,24 +68,36 @@ export function Contact() {
           open and I love meeting other developers.
         </p>
 
-        <div className="relative mt-10 inline-block">
-          <Doodle
-            type="arrow"
-            className="absolute -left-16 -top-12 hidden h-14 w-20 -rotate-12 sm:block"
-          />
-          <MagneticLink
-            href={`mailto:${EMAIL}`}
-            strength={0.4}
-            className="inline-flex items-center gap-3 rounded-full bg-[var(--color-fg)] px-8 py-4 font-semibold text-[var(--color-ink)]"
-          >
-            <Icon name="mail" size={18} /> {EMAIL}
-          </MagneticLink>
-        </div>
+        <div className="mt-12 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          {/* The form */}
+          <div className="relative">
+            <Doodle
+              type="arrow"
+              className="absolute -left-12 -top-10 hidden h-12 w-16 rotate-6 lg:block"
+            />
+            <ContactForm />
+          </div>
 
-        <div className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {socials.map((s) => (
-            <SocialCard key={s.label} s={s} />
-          ))}
+          {/* Alternatives */}
+          <div>
+            <p className="text-[var(--color-fg-dim)]">
+              Prefer email? Reach me directly at{' '}
+              <MagneticLink
+                href={`mailto:${EMAIL}`}
+                strength={0.3}
+                className="font-semibold text-[var(--color-fg)] underline decoration-[var(--color-accent)] underline-offset-4"
+              >
+                {EMAIL}
+              </MagneticLink>
+              .
+            </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {socials.map((s) => (
+                <SocialCard key={s.label} s={s} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

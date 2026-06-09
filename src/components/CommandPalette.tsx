@@ -25,6 +25,7 @@ function useCommands(close: () => void): Cmd[] {
       { id: 'about', label: 'About', group: 'Navigate', run: go('about') },
       { id: 'projects', label: 'Work / Projects', group: 'Navigate', run: go('projects') },
       { id: 'playground', label: 'Animation playground', group: 'Navigate', run: go('playground') },
+      { id: 'writing', label: 'Writing', group: 'Navigate', run: go('writing') },
       { id: 'github', label: 'GitHub activity', group: 'Navigate', run: go('github-stats') },
       { id: 'photography', label: 'Photography', group: 'Navigate', run: go('photography') },
       { id: 'contact', label: 'Contact', group: 'Navigate', run: go('contact') },
@@ -42,13 +43,13 @@ function useCommands(close: () => void): Cmd[] {
         },
       },
       {
-        id: 'resume',
-        label: 'Download résumé',
+        id: 'contact',
+        label: 'Send me a message',
         group: 'Actions',
-        keywords: 'cv pdf',
+        keywords: 'email form contact hire',
         run: () => {
-          window.open('/Gerardo_Colegio_Profile.pdf', '_blank')
           close()
+          scrollToId('contact')
         },
       },
     ]

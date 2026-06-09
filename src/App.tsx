@@ -14,6 +14,7 @@ import { TechStack } from './sections/TechStack'
 import { Projects } from './sections/Projects'
 import { GitHubStats } from './sections/GitHubStats'
 import { Playground } from './sections/Playground'
+import { Writing } from './sections/Writing'
 import { Photography } from './sections/Photography'
 import { Contact } from './sections/Contact'
 import { Footer } from './sections/Footer'
@@ -39,6 +40,7 @@ export default function App() {
         <Divider className="py-6" />
         <GitHubStats />
         <Playground />
+        <Writing />
         <Divider className="py-6" />
         <Photography />
         <Contact />

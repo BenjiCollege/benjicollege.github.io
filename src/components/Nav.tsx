@@ -7,6 +7,7 @@ const links = [
   { label: 'Work', href: '#projects' },
   { label: 'Code', href: '#github-stats' },
   { label: 'Playground', href: '#playground' },
+  { label: 'Writing', href: '#writing' },
   { label: 'Photos', href: '#photography' },
   { label: 'Contact', href: '#contact' },
 ]
@@ -61,13 +62,6 @@ export function Nav() {
 
       <div className="hidden items-center gap-3 md:flex">
         <MagneticLink
-          href="/Gerardo_Colegio_Profile.pdf"
-          download
-          className="rounded-full px-4 py-2 text-sm text-[var(--color-fg-dim)] transition-colors hover:text-[var(--color-fg)]"
-        >
-          Résumé
-        </MagneticLink>
-        <MagneticLink
           href="https://github.com/BenjiCollege"
           external
           strength={0.5}
@@ -97,7 +91,7 @@ export function Nav() {
       {/* Mobile sheet */}
       {open && (
         <div className="fixed inset-x-4 top-20 flex flex-col gap-1 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-3 md:hidden">
-          {[...links, { label: 'Résumé', href: '/Gerardo_Colegio_Profile.pdf' }].map((l) => (
+          {links.map((l) => (
             <a
               key={l.href}
               href={l.href}

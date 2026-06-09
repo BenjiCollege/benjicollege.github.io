@@ -11,6 +11,9 @@ type IconName =
   | 'mail'
   | 'arrow'
   | 'external'
+  | 'sound-on'
+  | 'sound-off'
+  | 'send'
 
 const paths: Record<IconName, { d: string; fill?: boolean }> = {
   github: {
@@ -37,6 +40,9 @@ const paths: Record<IconName, { d: string; fill?: boolean }> = {
   },
   arrow: { d: 'M5 12h14M13 6l6 6-6 6' },
   external: { d: 'M7 17 17 7M9 7h8v8' },
+  'sound-on': { d: 'M4 9v6h4l5 5V4L8 9H4zM16 8.5a4 4 0 0 1 0 7M18.5 6a7 7 0 0 1 0 12' },
+  'sound-off': { d: 'M4 9v6h4l5 5V4L8 9H4zM22 9l-6 6M16 9l6 6' },
+  send: { d: 'M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z' },
 }
 
 type Props = SVGProps<SVGSVGElement> & { name: IconName; size?: number }

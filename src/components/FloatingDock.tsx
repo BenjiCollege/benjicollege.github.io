@@ -1,14 +1,38 @@
+import { useEffect } from 'react'
 import { ACCENTS } from '../lib/accent'
 import { useAccent } from '../hooks/useAccent'
+import { useSound } from '../hooks/useSound'
+import { sound } from '../lib/sound'
+import { Icon } from './Icon'
 
 export const OPEN_PALETTE_EVENT = 'open-command-palette'
 
+const INTERACTIVE = 'a, button, [data-cursor]'
+
 /**
- * Bottom-right control cluster: accent swatches + a ⌘K launcher (also the way
- * to open the palette on touch devices that have no keyboard shortcut).
+ * Bottom-right control cluster: accent swatches, a sound toggle, and a ⌘K
+ * launcher. Also hosts the global UI-sound listeners (they no-op until the
+ * visitor enables sound).
  */
 export function FloatingDock() {
   const [active, setAccent] = useAccent()
+  const [soundOn, setSoundOn] = useSound()
+
+  // Global hover/click sounds — attached once, gated by the toggle internally.
+  useEffect(() => {
+    const onOver = (e: Event) => {
+      if ((e.target as HTMLElement).closest?.(INTERACTIVE)) sound.hover()
+    }
+    const onClick = (e: Event) => {
+      if ((e.target as HTMLElement).closest?.(INTERACTIVE)) sound.click()
+    }
+    document.addEventListener('pointerover', onOver)
+    document.addEventListener('click', onClick)
+    return () => {
+      document.removeEventListener('pointerover', onOver)
+      document.removeEventListener('click', onClick)
+    }
+  }, [])
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex items-center gap-3">
@@ -28,6 +52,18 @@ export function FloatingDock() {
           />
         ))}
       </div>
+
+      <button
+        onClick={() => setSoundOn(!soundOn)}
+        data-cursor
+        aria-label={soundOn ? 'Mute UI sounds' : 'Enable UI sounds'}
+        aria-pressed={soundOn}
+        className={`flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-surface)]/80 backdrop-blur transition-colors ${
+          soundOn ? 'text-[var(--color-accent)]' : 'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]'
+        }`}
+      >
+        <Icon name={soundOn ? 'sound-on' : 'sound-off'} size={17} />
+      </button>
 
       <button
         onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))}
