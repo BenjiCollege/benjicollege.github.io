@@ -5,8 +5,11 @@ import { ScrollProgress } from './components/ScrollProgress'
 import { Nav } from './components/Nav'
 import { CommandPalette } from './components/CommandPalette'
 import { FloatingDock } from './components/FloatingDock'
+import { EasterEgg } from './components/EasterEgg'
+import { Divider } from './components/Divider'
 import { Hero } from './sections/Hero'
 import { About } from './sections/About'
+import { Statement } from './sections/Statement'
 import { TechStack } from './sections/TechStack'
 import { Projects } from './sections/Projects'
 import { GitHubStats } from './sections/GitHubStats'
@@ -26,13 +29,17 @@ export default function App() {
       <Nav />
       <CommandPalette />
       <FloatingDock />
+      <EasterEgg />
       <main>
         <Hero />
         <About />
+        <Statement />
         <TechStack />
         <Projects />
+        <Divider className="py-6" />
         <GitHubStats />
         <Playground />
+        <Divider className="py-6" />
         <Photography />
         <Contact />
       </main>

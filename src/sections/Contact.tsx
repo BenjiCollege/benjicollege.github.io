@@ -4,6 +4,7 @@ import { socials, EMAIL } from '../data/socials'
 import { Icon } from '../components/Icon'
 import { MagneticLink } from '../components/MagneticLink'
 import { useMagnetic } from '../hooks/useMagnetic'
+import { Doodle } from '../components/Doodle'
 
 function SocialCard({ s }: { s: (typeof socials)[number] }) {
   const ref = useMagnetic<HTMLAnchorElement>(0.3)
@@ -66,7 +67,11 @@ export function Contact() {
           open and I love meeting other developers.
         </p>
 
-        <div className="mt-8">
+        <div className="relative mt-10 inline-block">
+          <Doodle
+            type="arrow"
+            className="absolute -left-16 -top-12 hidden h-14 w-20 -rotate-12 sm:block"
+          />
           <MagneticLink
             href={`mailto:${EMAIL}`}
             strength={0.4}

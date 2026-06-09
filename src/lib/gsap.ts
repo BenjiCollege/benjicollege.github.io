@@ -8,6 +8,8 @@ import { InertiaPlugin } from 'gsap/InertiaPlugin'
 import { Flip } from 'gsap/Flip'
 import { TextPlugin } from 'gsap/TextPlugin'
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin'
+import { SplitText } from 'gsap/SplitText'
 
 gsap.registerPlugin(
   useGSAP,
@@ -17,6 +19,8 @@ gsap.registerPlugin(
   Flip,
   TextPlugin,
   ScrambleTextPlugin,
+  DrawSVGPlugin,
+  SplitText,
 )
 
 // Honour the OS "reduce motion" preference. Components call this to decide
@@ -41,4 +45,6 @@ export {
   Flip,
   TextPlugin,
   ScrambleTextPlugin,
+  DrawSVGPlugin,
+  SplitText,
 }

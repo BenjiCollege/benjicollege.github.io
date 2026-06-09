@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Lost in the void · Gerardo Colegio</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0d1117;
+        --ink: #05070a;
+        --fg: #c9d1d9;
+        --dim: #7d8694;
+        --line: #232b36;
+        --accent: #2ee6d6;
+        --accent2: #7c5cff;
+        --accent3: #ff5c8a;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'Space Grotesk', system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        text-align: center;
+        position: relative;
+      }
+      /* grain */
+      body::before {
+        content: '';
+        position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.03;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .wrap { position: relative; z-index: 3; padding: 24px; }
+      .eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px; letter-spacing: 0.4em; text-transform: uppercase;
+        color: var(--accent); margin-bottom: 18px;
+      }
+      .glitch {
+        position: relative;
+        font-size: clamp(6rem, 28vw, 18rem);
+        font-weight: 700; line-height: 0.8; letter-spacing: -0.04em;
+        color: var(--fg);
+      }
+      .glitch::before, .glitch::after {
+        content: '404'; position: absolute; inset: 0;
+        clip-path: inset(0 0 0 0);
+      }
+      .glitch::before { color: var(--accent3); animation: g1 2.6s infinite steps(2); }
+      .glitch::after  { color: var(--accent2); animation: g2 3.1s infinite steps(2); }
+      @keyframes g1 {
+        0%,90%,100%{transform:translate(0);clip-path:inset(0 0 95% 0)}
+        92%{transform:translate(-5px,2px);clip-path:inset(20% 0 40% 0)}
+        96%{transform:translate(4px,-2px);clip-path:inset(60% 0 10% 0)}
+      }
+      @keyframes g2 {
+        0%,88%,100%{transform:translate(0);clip-path:inset(95% 0 0 0)}
+        90%{transform:translate(4px,-2px);clip-path:inset(40% 0 30% 0)}
+        94%{transform:translate(-4px,2px);clip-path:inset(10% 0 70% 0)}
+      }
+      .msg { margin-top: 18px; font-size: clamp(1.1rem, 3vw, 1.6rem); }
+      .sub { margin-top: 10px; color: var(--dim); max-width: 30rem; margin-inline: auto; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 10px; margin-top: 32px;
+        background: var(--fg); color: var(--ink); font-weight: 700;
+        padding: 14px 26px; border-radius: 999px; text-decoration: none;
+        transition: transform 0.2s ease;
+      }
+      .btn:hover { transform: translateY(-2px); }
+      .code { font-family: 'JetBrains Mono', monospace; color: var(--dim); margin-top: 28px; font-size: 13px; }
+      /* floating orbit svg */
+      .orbit { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+      @media (prefers-reduced-motion: reduce) {
+        .glitch::before, .glitch::after { animation: none; }
+        .orbit * { animation: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <svg class="orbit" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="#232b36" stroke-width="1">
+        <circle class="ring" cx="500" cy="500" r="180" />
+        <circle class="ring" cx="500" cy="500" r="300" />
+        <circle class="ring" cx="500" cy="500" r="440" />
+      </g>
+      <circle class="dot" cx="500" cy="320" r="6" fill="#2ee6d6" />
+      <circle class="dot" cx="500" cy="200" r="5" fill="#7c5cff" />
+      <circle class="dot" cx="500" cy="60" r="4" fill="#ff5c8a" />
+    </svg>
+
+    <div class="wrap">
+      <p class="eyebrow">Error · 404</p>
+      <div class="glitch" data-text="404">404</div>
+      <p class="msg">This page wandered off the map.</p>
+      <p class="sub">The link is broken or the page never existed. Either way — let's get you back to something real.</p>
+      <a class="btn" href="/">← Back to home</a>
+      <p class="code">// you took a wrong turn in the matrix</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script>
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (window.gsap && !reduce) {
+        // Slide-only entrance (no opacity) so content is NEVER hidden if rAF is
+        // throttled (e.g. a backgrounded tab) — a 404 must always be readable.
+        gsap.from('.wrap > *', { y: 24, duration: 0.7, stagger: 0.08, ease: 'power3.out', delay: 0.1 })
+        // orbiting dots around the center
+        document.querySelectorAll('.orbit .dot').forEach((dot, i) => {
+          gsap.to(dot, {
+            duration: 8 + i * 4,
+            repeat: -1,
+            ease: 'none',
+            rotation: 360,
+            transformOrigin: '500px 500px',
+            svgOrigin: '500 500',
+          })
+        })
+        gsap.to('.ring', { rotation: 360, duration: 60, repeat: -1, ease: 'none', svgOrigin: '500 500', stagger: 6 })
+      }
+    </script>
+  </body>
+</html>

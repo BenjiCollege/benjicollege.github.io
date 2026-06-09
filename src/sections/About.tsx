@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
 import { Reveal } from '../components/Reveal'
+import { Doodle } from '../components/Doodle'
 
 export function About() {
   const root = useRef<HTMLElement>(null)
@@ -35,7 +36,12 @@ export function About() {
         </Reveal>
         <Reveal stagger className="space-y-6">
           <h2 className="heading max-w-xl">
-            I'm Benji — a developer who likes the <span className="text-gradient">fun</span> part.
+            I'm Benji — a developer who likes the{' '}
+            <span className="relative inline-block text-gradient">
+              fun
+              <Doodle type="underline" className="absolute -bottom-1 left-0 h-3 w-full" />
+            </span>{' '}
+            part.
           </h2>
           <p className="max-w-xl text-lg text-[var(--color-fg-dim)]">
             I'm a software developer shipping real products by day. I came up
