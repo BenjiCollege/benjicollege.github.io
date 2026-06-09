@@ -25,6 +25,7 @@ function useCommands(close: () => void): Cmd[] {
       { id: 'about', label: 'About', group: 'Navigate', run: go('about') },
       { id: 'projects', label: 'Work / Projects', group: 'Navigate', run: go('projects') },
       { id: 'playground', label: 'Animation playground', group: 'Navigate', run: go('playground') },
+      { id: 'terminal', label: 'Terminal', group: 'Navigate', run: go('terminal') },
       { id: 'writing', label: 'Writing', group: 'Navigate', run: go('writing') },
       { id: 'github', label: 'GitHub activity', group: 'Navigate', run: go('github-stats') },
       { id: 'photography', label: 'Photography', group: 'Navigate', run: go('photography') },

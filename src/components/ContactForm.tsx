@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
+import { confetti } from '../lib/confetti'
 import { Icon } from './Icon'
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -27,6 +28,7 @@ export function ContactForm() {
           { scale: 0.9, opacity: 0 },
           { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(2)' },
         )
+        confetti('center')
       }
     },
     { scope: root, dependencies: [status] },

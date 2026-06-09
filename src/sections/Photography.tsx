@@ -53,7 +53,7 @@ export function Photography() {
           <button
             key={src}
             onClick={() => setActive(src)}
-            data-cursor
+            data-cursor-label="OPEN"
             className="photo block w-full overflow-hidden rounded-xl border border-[var(--color-line)]"
           >
             <img

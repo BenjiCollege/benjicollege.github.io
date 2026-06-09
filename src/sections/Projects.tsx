@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
-import { gsap, useGSAP, isTouch, prefersReducedMotion } from '../lib/gsap'
+import { useEffect, useRef, useState } from 'react'
+import { gsap, useGSAP, ScrollTrigger, isTouch, prefersReducedMotion } from '../lib/gsap'
 import { projects, type Project } from '../data/projects'
 import { Reveal } from '../components/Reveal'
 import { Icon } from '../components/Icon'
 import { ProjectModal } from '../components/ProjectModal'
+import { WebGLImage } from '../components/WebGLImage'
 
 const accents = [
   'var(--color-accent)',
@@ -20,7 +21,6 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
     () => {
       const el = ref.current!
       if (isTouch() || prefersReducedMotion()) return
-      const img = el.querySelector('.card-img') as HTMLElement
       const xTo = gsap.quickTo(el, 'rotationY', { duration: 0.5, ease: 'power3' })
       const yTo = gsap.quickTo(el, 'rotationX', { duration: 0.5, ease: 'power3' })
 
@@ -30,12 +30,10 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
         const py = (e.clientY - r.top) / r.height - 0.5
         xTo(px * 12)
         yTo(-py * 12)
-        gsap.to(img, { scale: 1.08, duration: 0.5 })
       }
       const leave = () => {
         xTo(0)
         yTo(0)
-        gsap.to(img, { scale: 1, duration: 0.5 })
       }
       el.addEventListener('pointermove', move)
       el.addEventListener('pointerleave', leave)
@@ -50,18 +48,13 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
   return (
     <article
       ref={ref}
-      data-cursor
+      data-cursor-label="VIEW"
       onClick={onOpen}
       className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] [transform-style:preserve-3d]"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
-        <img
-          src={project.image}
-          alt={project.title}
-          loading="lazy"
-          className="card-img h-full w-full object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent" />
+        <WebGLImage src={project.image} alt={project.title} className="h-full w-full" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--color-surface)] via-transparent to-transparent" />
         {project.status === 'building' && (
           <span
             className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-ink)]/80 px-3 py-1 font-mono text-[11px] backdrop-blur"
@@ -128,30 +121,99 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
   )
 }
 
-export function Projects() {
-  const [openProject, setOpenProject] = useState<Project | null>(null)
+function Header() {
   return (
-    <section id="projects" className="mx-auto max-w-7xl px-6 py-28 md:py-40">
-      <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <Reveal as="p" className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-[var(--color-accent)]">
-            // selected work
-          </Reveal>
-          <Reveal as="h2" className="heading max-w-2xl">
-            Stuff I've <span className="text-gradient">built</span> &amp; things I'm building.
-          </Reveal>
-        </div>
-        <Reveal as="p" className="max-w-sm text-[var(--color-fg-dim)]">
-          A mix of shipped projects and active experiments. Hover the cards —
-          they tilt.
+    <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+      <div>
+        <Reveal as="p" className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-[var(--color-accent)]">
+          // selected work
+        </Reveal>
+        <Reveal as="h2" className="heading max-w-2xl">
+          Stuff I've <span className="text-gradient">built</span> &amp; things I'm building.
         </Reveal>
       </div>
-
-      <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" y={60}>
-        {projects.map((p) => (
-          <ProjectCard key={p.title} project={p} onOpen={() => setOpenProject(p)} />
-        ))}
+      <Reveal as="p" className="max-w-sm text-[var(--color-fg-dim)]">
+        A mix of shipped projects and active experiments — scroll sideways.
       </Reveal>
+    </div>
+  )
+}
+
+export function Projects() {
+  const [openProject, setOpenProject] = useState<Project | null>(null)
+  const [horizontal, setHorizontal] = useState(false)
+  const section = useRef<HTMLElement>(null)
+  const track = useRef<HTMLDivElement>(null)
+
+  // Horizontal pinned scroll only on real desktops without reduced-motion.
+  useEffect(() => {
+    const decide = () =>
+      setHorizontal(
+        window.matchMedia('(min-width: 1024px)').matches && !isTouch() && !prefersReducedMotion(),
+      )
+    decide()
+    window.addEventListener('resize', decide)
+    return () => window.removeEventListener('resize', decide)
+  }, [])
+
+  useGSAP(
+    () => {
+      if (!horizontal || !track.current || !section.current) return
+      const distance = () => track.current!.scrollWidth - window.innerWidth + 80
+      const tween = gsap.to(track.current, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section.current,
+          start: 'top top',
+          end: () => '+=' + distance(),
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        },
+      })
+      requestAnimationFrame(() => ScrollTrigger.refresh())
+      return () => {
+        tween.scrollTrigger?.kill()
+        tween.kill()
+      }
+    },
+    { scope: section, dependencies: [horizontal] },
+  )
+
+  const cards = projects.map((p) => (
+    <ProjectCard key={p.title} project={p} onOpen={() => setOpenProject(p)} />
+  ))
+
+  return (
+    <section ref={section} id="projects" className={horizontal ? 'relative' : 'mx-auto max-w-7xl px-6 py-28 md:py-40'}>
+      {horizontal ? (
+        <div className="flex h-screen flex-col justify-center overflow-hidden">
+          <div className="mx-auto w-full max-w-7xl px-6">
+            <Header />
+          </div>
+          <div
+            ref={track}
+            className="flex gap-6 pr-[10vw] pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]"
+          >
+            {cards.map((card) => (
+              <div key={card.key} className="w-[400px] shrink-0">
+                {card}
+              </div>
+            ))}
+            <div className="flex w-[20vw] shrink-0 items-center font-mono text-sm text-[var(--color-fg-dim)]">
+              that's the lot →
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <Header />
+          <Reveal stagger className="grid gap-6 sm:grid-cols-2" y={60}>
+            {cards}
+          </Reveal>
+        </>
+      )}
 
       <ProjectModal project={openProject} onClose={() => setOpenProject(null)} />
     </section>

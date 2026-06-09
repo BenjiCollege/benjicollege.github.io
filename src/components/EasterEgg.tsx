@@ -1,37 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, prefersReducedMotion } from '../lib/gsap'
+import { confetti } from '../lib/confetti'
 
 const KONAMI = [
   'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
   'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a',
 ]
-const COLORS = ['#2ee6d6', '#7c5cff', '#ff5c8a', '#ffd24c', '#3fb950', '#ffffff']
-
-/** Fire a physics-y confetti burst from the top of the viewport. */
-function confetti() {
-  if (prefersReducedMotion()) return
-  const layer = document.createElement('div')
-  layer.style.cssText = 'position:fixed;inset:0;z-index:300;pointer-events:none;overflow:hidden'
-  document.body.appendChild(layer)
-
-  const pieces = Array.from({ length: 120 }, () => {
-    const el = document.createElement('div')
-    const size = gsap.utils.random(6, 12)
-    el.style.cssText = `position:absolute;top:-20px;left:${gsap.utils.random(0, 100)}vw;width:${size}px;height:${size * gsap.utils.random(0.4, 1)}px;background:${gsap.utils.random(COLORS)};border-radius:${gsap.utils.random(0, 50)}%`
-    layer.appendChild(el)
-    return el
-  })
-
-  gsap.to(pieces, {
-    y: () => window.innerHeight + 60,
-    x: () => gsap.utils.random(-160, 160),
-    rotation: () => gsap.utils.random(-540, 540),
-    duration: () => gsap.utils.random(1.6, 3),
-    ease: 'power1.in',
-    stagger: { each: 0.006, from: 'random' },
-    onComplete: () => layer.remove(),
-  })
-}
 
 export function EasterEgg() {
   const [toast, setToast] = useState(false)
@@ -49,6 +23,19 @@ export function EasterEgg() {
       'color:#c9d1d9;font-size:13px',
       'color:#7d8694;font-size:12px',
     )
+  }, [])
+
+  // Tab-title easter egg — nudge people who wander off.
+  useEffect(() => {
+    const original = document.title
+    const onVisibility = () => {
+      document.title = document.hidden ? '👀 come back! — Benji' : original
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      document.title = original
+    }
   }, [])
 
   useEffect(() => {

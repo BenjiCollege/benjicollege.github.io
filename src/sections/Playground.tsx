@@ -130,6 +130,7 @@ function DragDemo() {
     <div ref={ref} className="relative h-[140px] w-full">
       <div
         ref={handle}
+        data-cursor-label="DRAG"
         className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--color-accent-3)] to-[var(--color-accent-4)] font-bold text-[var(--color-ink)]"
       >
         fling

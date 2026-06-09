@@ -36,7 +36,7 @@ export function Writing() {
           <button
             key={p.slug}
             onClick={() => setOpen(p)}
-            data-cursor
+            data-cursor-label="READ"
             className="group flex flex-col gap-3 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 text-left transition-colors hover:border-[var(--color-accent)] sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="max-w-2xl">
