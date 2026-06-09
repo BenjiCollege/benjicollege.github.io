@@ -8,7 +8,7 @@ import { Icon } from './Icon'
 //  in your inbox — no server needed. The key is safe to commit (it only routes
 //  to your email; it can't read anything).
 // ─────────────────────────────────────────────────────────────────────────
-const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY'
+const WEB3FORMS_ACCESS_KEY: string = '12b4e4e2-09b1-4975-ac61-0d1f8f6c77bb'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
