@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>photography</title>
+    <link rel="stylesheet" href="assets/css/onset.css">
+    <link rel="stylesheet" href="/assets/font-awesome-4.7.0/css/font-awesome.css">
+</head>
+
+<body>
+  <nav>
+    <div id="nav-links">
+      <a class="nav-link" href="https://gerardocolegio.dev/">
+        <h2 class="nav-link-label rubik-font">Home</h2>
+        <img class="nav-link-image" src="/assets/img/Chroma-Lair.png" />
+      </a>
+      <a class="nav-link" href="onset.html">
+        <h2 class="nav-link-label rubik-font">On-set photography</h2>
+        <img class="nav-link-image" src="/assets/img/onset.jpg" />
+      </a>
+      <a class="nav-link" href="sports.html">
+        <h2 class="nav-link-label rubik-font">Sports</h2>
+        <img class="nav-link-image" src="/assets/img/sports.jpg" />
+      </a>
+      <a class="nav-link" href="about.html">
+        <h2 class="nav-link-label rubik-font">About</h2>
+        <img class="nav-link-image" src="/assets/img/about.jpg" />
+      </a>
+    </div>
+  </nav>
+  
+  <button id="nav-toggle" type="button" onclick="toggleNav()">
+    <i class="open fa fa-angle-double-down" aria-hidden="true"></i>
+    <i class="close fa fa-times" aria-hidden="true"></i>
+
+  </button>
+
+<script>
+  const images = document.getElementsByClassName("image");
+
+let globalIndex = 0,
+    last = { x: 0, y: 0 };
+
+const activate = (image, x, y) => {
+  image.style.left = `${x}px`;
+  image.style.top = `${y}px`;
+  image.style.zIndex = globalIndex;
+
+  image.dataset.status = "active";
+
+  last = { x, y };
+}
+
+const distanceFromLast = (x, y) => {
+  return Math.hypot(x - last.x, y - last.y);
+}
+
+const handleOnMove = e => {
+  if(distanceFromLast(e.clientX, e.clientY) > (window.innerWidth / 20)) {
+    const lead = images[globalIndex % images.length],
+          tail = images[(globalIndex - 5) % images.length];
+
+    activate(lead, e.clientX, e.clientY);
+
+    if(tail) tail.dataset.status = "inactive";
+    
+    globalIndex++;
+  }
+}
+
+window.onmousemove = e => handleOnMove(e);
+
+window.ontouchmove = e => handleOnMove(e.touches[0]);
+</script>
+
+<style>
+body {
+  overflow: hidden;
+}
+
+.image {
+  width: 70vmin;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.image[data-status="inactive"] {
+  display: none;
+}
+
+.image[data-status="active"] {
+  display: block;
+}
+</style>
+<main>
+<img class="image" data-index="0" data-status="inactive" src="assets/img/onset/image1.jpg"><img class="image" data-index="1" data-status="inactive" src="assets/img/onset/image2.jpg"><img class="image" data-index="2" data-status="inactive" src="assets/img/onset/image3.jpg"><img class="image" data-index="3" data-status="inactive" src="assets/img/onset/image4.jpg"><img class="image" data-index="4" data-status="inactive" src="assets/img/onset/image5.jpg"><img class="image" data-index="5" data-status="inactive" src="assets/img/onset/image6.jpg"><img class="image" data-index="6" data-status="inactive" src="assets/img/onset/image7.jpg"><img class="image" data-index="7" data-status="inactive" src="assets/img/onset/image8.jpg"><img class="image" data-index="8" data-status="inactive" src="assets/img/onset/image9.jpg"><img class="image" data-index="9" data-status="inactive" src="assets/img/onset/image10.jpg"><img class="image" data-index="10" data-status="inactive" src="assets/img/onset/image11.jpg"><img class="image" data-index="11" data-status="inactive" src="assets/img/onset/image12.jpg"><img class="image" data-index="12" data-status="inactive" src="assets/img/onset/image13.jpg"><img class="image" data-index="13" data-status="inactive" src="assets/img/onset/image14.jpg"><img class="image" data-index="14" data-status="inactive" src="assets/img/onset/image15.jpg"><img class="image" data-index="15" data-status="inactive" src="assets/img/onset/image16.jpg"><img class="image" data-index="16" data-status="inactive" src="assets/img/onset/image17.jpg"><img class="image" data-index="17" data-status="inactive" src="assets/img/onset/image18.jpg"><img class="image" data-index="18" data-status="inactive" src="assets/img/onset/image19.jpg"><img class="image" data-index="19" data-status="inactive" src="assets/img/onset/image20.jpg"><img class="image" data-index="20" data-status="inactive" src="assets/img/onset/image21.jpg"><img class="image" data-index="21" data-status="inactive" src="assets/img/onset/image22.jpg"><img class="image" data-index="22" data-status="inactive" src="assets/img/onset/image23.jpg"><img class="image" data-index="23" data-status="inactive" src="assets/img/onset/image24.jpg"><img class="image" data-index="24" data-status="inactive" src="assets/img/onset/image25.jpg"><img class="image" data-index="25" data-status="inactive" src="assets/img/onset/image26.jpg"><img class="image" data-index="26" data-status="inactive" src="assets/img/onset/image27.jpg"><img class="image" data-index="27" data-status="inactive" src="assets/img/onset/image28.jpg"><img class="image" data-index="28" data-status="inactive" src="assets/img/onset/image29.jpg"><img class="image" data-index="29" data-status="inactive" src="assets/img/onset/image30.jpg"><img class="image" data-index="30" data-status="inactive" src="assets/img/onset/image31.jpg"><img class="image" data-index="31" data-status="inactive" src="assets/img/onset/image32.jpg"><img class="image" data-index="32" data-status="inactive" src="assets/img/onset/image33.jpg">
+</main>
+    <script src="assets/js/onset.js"></script>
+</body>
+
+</html>

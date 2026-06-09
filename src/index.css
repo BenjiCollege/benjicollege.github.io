@@ -1,0 +1,147 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ */
+/*  Design tokens — dark "GitHub-at-night" palette w/ neon accents     */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-ink: #05070a;
+  --color-bg: #0d1117;
+  --color-surface: #11161d;
+  --color-surface-2: #161c25;
+  --color-line: #232b36;
+  --color-fg: #c9d1d9;
+  --color-fg-dim: #7d8694;
+
+  --color-accent: #2ee6d6; /* cyan */
+  --color-accent-2: #7c5cff; /* violet */
+  --color-accent-3: #ff5c8a; /* pink */
+  --color-accent-4: #ffd24c; /* amber */
+
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base — MUST live in @layer base so Tailwind utilities (which sit   */
+/*  in higher layers) can still override these element styles.         */
+/*  Tailwind's preflight already resets margins/padding/box-sizing.    */
+/* ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  /* Lenis controls scrolling */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  /* Thin custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-2);
+  }
+
+  /* Reduced motion — calm everything down */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reusable component helpers                                          */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Fluid display type */
+  .display {
+    font-size: clamp(2.75rem, 11vw, 10rem);
+  }
+  .heading {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: linear-gradient(
+      100deg,
+      var(--color-accent),
+      var(--color-accent-2) 55%,
+      var(--color-accent-3)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Subtle film grain overlay */
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Cursor — hide the native cursor on desktop where the custom runs    */
+/* ------------------------------------------------------------------ */
+@media (hover: hover) and (pointer: fine) {
+  body.custom-cursor,
+  body.custom-cursor * {
+    cursor: none !important;
+  }
+}
