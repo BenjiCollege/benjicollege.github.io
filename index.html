@@ -1,142 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Gerardo (Benji) Colegio — Software Developer. Portfolio, projects, and a playground of GSAP animations."
+    />
+    <meta name="theme-color" content="#0d1117" />
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Benji's portfolio</title>
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/code-solid.svg">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,700,800&amp;display=swap">
-    <link rel="stylesheet" href="assets/css/Font%20Awesome%205%20Brands.css">
-    <link rel="stylesheet" href="assets/css/Font%20Awesome%205%20Free.css">
-    <link rel="stylesheet" href="assets/css/Ionicons.css">
-    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
-    <link rel="stylesheet" href="assets/css/aos.min.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/fonts/ionicons.min.css">
-    <link rel="stylesheet" href="assets/css/css/aos.min.css">
-    <link rel="stylesheet" href="assets/css/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/css/Navbar-Right-Links-Dark-icons.css">
-    <link rel="stylesheet" href="assets/css/css/styles.css">
-</head>
+    <!-- Open Graph -->
+    <meta property="og:title" content="Gerardo Colegio — Software Developer" />
+    <meta
+      property="og:description"
+      content="A developer portfolio built with React + GSAP. Projects, animations, and photography."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gerardocolegio.dev/" />
+    <meta property="og:image" content="/projects/Chroma-Lair.png" />
 
-<body>
-    <nav class="navbar navbar-dark navbar-expand-md sticky-top bg-dark py-3" data-aos="zoom-in" data-aos-duration="1800" data-aos-once="true">
-        <div class="container"><a class="navbar-brand d-flex align-items-center" href="https://gerardocolegio.dev/"><img data-bss-hover-animate="pulse" src="assets/img/gerardo-colegio-low-resolution-logo-white-on-transparent-background.png" style="width: 134px;margin: 0px;"></a><button data-bs-toggle="collapse" data-bs-target="#navcol-5" class="navbar-toggler"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navcol-5">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" data-bss-hover-animate="pulse" href="/Gerardo_Colegio_Profile.pdf" style="border-bottom-style: ridge;font-weight: bold;" download="">Resume</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bss-hover-animate="pulse" href="#stack" style="border-bottom-style: ridge;font-style: italic;" data-bs-target="#my-tech-stack">Tech Stack</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bss-hover-animate="pulse" href="#projects" style="border-bottom-style: ridge;font-style: italic;">Projects</a></li>
-                </ul><a class="btn btn-primary ms-md-2" role="button" data-bss-hover-animate="rubberBand" href="https://github.com/BenjiCollege">GitHub</a>
-            </div>
-        </div>
-    </nav>
-    <header>
-        <div data-bss-parallax-bg="true" style="height: 600px;background-image: url(&quot;assets/img/Chroma-Lair_3840x2160.png&quot;);background-position: center;background-size: cover;">
-            <div class="container d-flex flex-column justify-content-end align-items-start" data-aos="zoom-out" data-aos-duration="2000" data-aos-once="true">
-                <h1 class="display-3 fw-bold">Gerardo Colegio</h1>
-                <p class="fs-2 text-info text-badge mb-5">Junior Cloud Developer</p>
-            </div>
-        </div>
-    </header>
-    <main>
-        <section class="py-4 py-xl-5">
-            <div class="container">
-                <p class="fs-3" data-aos="fade-down" data-aos-duration="2000"><span style="color: rgb(201, 209, 217);background-color: rgb(13, 17, 23);">Welcome to my profile! I'm a junior cloud developer for _Nology, aspiring&nbsp;</span><span style="color: var(--color-accent-fg);background-color: rgb(13, 17, 23);"><a href="https://gerardocolegio.com">photographer</a></span><span style="color: rgb(201, 209, 217);background-color: rgb(13, 17, 23);">, full-time coder and part-time gamer. I am currently in training for <a href="https://us.nology.io/">nology</a>, and hope to connect with other developers and employers. Thanks for visiting and I'd love to&nbsp;</span><span style="color: var(--color-accent-fg);background-color: rgb(13, 17, 23);"><a href="https://www.linkedin.com/in/gerardo-colegio/">connect</a></span><span style="color: rgb(201, 209, 217);background-color: rgb(13, 17, 23);">!</span><br><br></p>
-            </div>
-        </section>
-        <section>
-            <div class="container" data-aos="fade-down" data-aos-duration="2000">
-                <h1 id="stack">My Tech Stack</h1>
-                <p class="fs-3"><span style="color: rgb(201, 209, 217);background-color: rgb(13, 17, 23);">Some of the languages that I currently work with.</span></p>
-                <ul class="list-inline fs-1 mb-0">
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-html5 fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-css3 fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="icon ion-social-javascript fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-react fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-python fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-node-js fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-adobe fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-npm fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-google fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><i class="fab fa-aws fs-1 me-2"></i></li>
-                    <li class="list-inline-item list-inline-item"><svg xmlns="http://www.w3.org/2000/svg" viewbox="-32 0 512 512" width="1em" height="1em" fill="currentColor" class="fs-1 me-2"><path d="M0 93.7l183.6-25.3v177.4H0V93.7zm0 324.6l183.6 25.3V268.4H0v149.9zm203.8 28L448 480V268.4H203.8v177.9zm0-380.6v180.1H448V32L203.8 65.7z"></path></svg></li>
-                </ul>
-                <p class="fs-3"><span style="color: rgb(201, 209, 217);background-color: rgb(13, 17, 23);">Some of the ways you can reach me.</span></p>
-                <ul class="list-inline fs-1 mb-0">
-                    <li class="list-inline-item list-inline-item"><a href="https://twitter.com/BenjiColegio"><i class="fab fa-twitter fs-1 me-2" data-bss-hover-animate="tada"></a></i></li>
-                    <li class="list-inline-item list-inline-item"><a href="https://www.instagram.com/benji.college/"><i class="fab fa-instagram fs-1 me-2" data-bss-hover-animate="rubberBand"></a></i></li>
-                    <li class="list-inline-item list-inline-item"><a href="mailto:bcolegio12@gmail.com"><i class="icon ion-email fs-1 me-2"></a></i></li>
-                    <li class="list-inline-item list-inline-item"><a href="https://www.linkedin.com/in/gerardo-colegio/"><i class="fab fa-linkedin-in fs-1 me-2" data-bss-hover-animate="wobble" ></a></i></li>
-                    <li class="list-inline-item list-inline-item"><a href="https://github.com/BenjiCollege"><i class="fab fa-github fs-1 me-2" data-bss-hover-animate="wobble" ></a></i></li>
-                </ul>
-            </div>
-        </section>
-        <section class="py-4 py-xl-5">
-            <div class="container">
-                <div data-aos="fade-down" data-aos-duration="2000" class="banner">
-                    <p class="fs-1">I am currently <strong>available</strong> for hire.&nbsp;<br>Download my resume below!</p><a href="/Gerardo_Colegio_Profile.pdf" download=""><button class="btn btn-dark btn-lg text-uppercase fw-bold" data-bss-hover-animate="bounce" type="button">Resume&nbsp;<i class="fas fa-chevron-right"></i></button></a>
-                </div>
-            </div>
-        </section>
-        <section data-aos="fade-down" data-aos-duration="2000" class="py-4 py-xl-5">
-            <div class="container">
-                <h2 id="projects">Projects</h2>
-                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 py-5 projects">
-                    <div class="col">
-                        <div class="card"><img class="card-img-top w-100 d-block card-img w-100" src="assets/img/bakery-website.png"></div>
-                    </div>
-                    <div class="col">
-                        <div class="card"><img class="card-img-top w-100 d-block card-img w-100" src="assets/img/calculator-website.png"></div>
-                    </div>
-                    <div class="col">
-                        <div class="card"><img class="card-img-top w-100 d-block card-img w-100" src="assets/img/pokeGuess-website.png"></div>
-                    </div>
-                    <div class="col">
-                        <div class="card"><img class="card-img-top w-100 d-block card-img w-100" src="assets/img/photography-website.png"></div>
-                    </div>
-                    <div class="col">
-                        <div class="card"><img class="card-img-top w-100 d-block card-img w-100" src="assets/img/pythonTerminal-game.png"></div>
-                    </div>
-                    <div class="col">
-                        <div class="card"><img class="card-img-top w-100 d-block card-img w-100" src="assets/img/draftAPI-website.png"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-    <footer class="py-3" style="height: 94px;">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start d-md-flex justify-content-md-start align-items-md-center py-2">
-                    <div>
-                        <p class="fs-5 fw-bold mb-0">Crafted by Gerardo Colegio</p>
-                        <p class="mb-0">Made with HTML, CSS, and JS</p>
-                    </div>
-                </div>
-                <div class="col-md-6 d-flex justify-content-center align-items-center justify-content-md-end py-2">
-                    <ul class="list-inline fs-1 mb-0">
-                        <li class="list-inline-item list-inline-item"><a href="https://twitter.com/BenjiColegio"><i class="fab fa-twitter fs-1 me-2" data-bss-hover-animate="tada"></a></i></li>
-                        <li class="list-inline-item list-inline-item"><a href="https://www.instagram.com/benji.college/"><i class="fab fa-instagram fs-1 me-2" data-bss-hover-animate="rubberBand"></a></i></li>
-                        <li class="list-inline-item list-inline-item"><a href="mailto:bcolegio12@gmail.com"><i class="icon ion-email fs-1 me-2"></a></i></li>
-                        <li class="list-inline-item list-inline-item"><a href="https://www.linkedin.com/in/gerardo-colegio/"><i class="fab fa-linkedin-in fs-1 me-2" data-bss-hover-animate="wobble" ></a></i></li>
-                        <li class="list-inline-item list-inline-item"><a href="https://github.com/BenjiCollege"><i class="fab fa-github fs-1 me-2" data-bss-hover-animate="wobble" ></a></i></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/aos.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
-    <script src="assets/js/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/js/aos.min.js"></script>
-    <script src="assets/js/js/bs-init.js"></script>
-</body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
 
+    <title>Gerardo Colegio — Software Developer</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
