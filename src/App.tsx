@@ -1,4 +1,6 @@
 import { useSmoothScroll } from './hooks/useSmoothScroll'
+import { AuroraBackground } from './components/AuroraBackground'
+import { AmbientFX } from './components/AmbientFX'
 import { Cursor } from './components/Cursor'
 import { Preloader } from './components/Preloader'
 import { ScrollProgress } from './components/ScrollProgress'
@@ -25,6 +27,8 @@ export default function App() {
 
   return (
     <div className="grain relative">
+      <AuroraBackground />
+      <AmbientFX />
       <Preloader />
       <Cursor />
       <ScrollProgress />
