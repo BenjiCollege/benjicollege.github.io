@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [master]
+    # `redesign-react-gsap` is here so deploys work before the branch is
+    # merged. Once merged to master you can drop it and keep just [master].
+    branches: [master, redesign-react-gsap]
   workflow_dispatch:
 
 permissions:
