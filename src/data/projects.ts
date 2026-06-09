@@ -16,6 +16,18 @@ export type Project = {
   status?: 'shipped' | 'building'
   /** Accent index 0–3 → cycles through the theme accent colors */
   accent?: 0 | 1 | 2 | 3
+
+  // ── Case-study detail (shown in the modal). All optional — the modal
+  //    falls back gracefully when a field is missing, so fill these in over
+  //    time. `blurb` is reused as the overview.
+  year?: string
+  role?: string
+  /** The problem / context — what were you solving? */
+  problem?: string
+  /** Your approach — how you built it, key decisions. */
+  approach?: string
+  /** 2–4 punchy highlights / outcomes. */
+  highlights?: string[]
 }
 
 export const projects: Project[] = [
@@ -29,6 +41,19 @@ export const projects: Project[] = [
     source: 'https://github.com/BenjiCollege',
     status: 'building',
     accent: 1,
+    // ↓ Example of the case-study fields — fill the rest of the projects the
+    //   same way (or delete these to fall back to the generic prompts).
+    year: '2025',
+    role: 'Solo developer',
+    problem:
+      'PLACEHOLDER — what sparked this project and what problem or itch it scratches.',
+    approach:
+      'PLACEHOLDER — how you built it: the architecture, the tricky bits, the decisions you are proud of.',
+    highlights: [
+      'PLACEHOLDER — a standout feature or result',
+      'PLACEHOLDER — something you learned',
+      'PLACEHOLDER — a metric or detail worth bragging about',
+    ],
   },
   {
     title: 'Switch Lair',

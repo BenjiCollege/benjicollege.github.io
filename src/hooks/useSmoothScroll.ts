@@ -18,6 +18,8 @@ export function useSmoothScroll() {
     })
 
     lenis.on('scroll', ScrollTrigger.update)
+    // Expose for programmatic smooth-scroll (command palette, nav jumps).
+    ;(window as Window & { __lenis?: Lenis }).__lenis = lenis
 
     const tick = (time: number) => lenis.raf(time * 1000)
     gsap.ticker.add(tick)
@@ -26,6 +28,7 @@ export function useSmoothScroll() {
     return () => {
       gsap.ticker.remove(tick)
       lenis.destroy()
+      delete (window as Window & { __lenis?: Lenis }).__lenis
     }
   }, [])
 }

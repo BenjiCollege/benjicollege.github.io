@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { gsap, useGSAP, isTouch, prefersReducedMotion } from '../lib/gsap'
 import { projects, type Project } from '../data/projects'
 import { Reveal } from '../components/Reveal'
 import { Icon } from '../components/Icon'
+import { ProjectModal } from '../components/ProjectModal'
 
 const accents = [
   'var(--color-accent)',
@@ -11,7 +12,7 @@ const accents = [
   'var(--color-accent-4)',
 ]
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const ref = useRef<HTMLElement>(null)
   const accent = accents[project.accent ?? 0]
 
@@ -50,7 +51,8 @@ function ProjectCard({ project }: { project: Project }) {
     <article
       ref={ref}
       data-cursor
-      className="group relative overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] [transform-style:preserve-3d]"
+      onClick={onOpen}
+      className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] [transform-style:preserve-3d]"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
@@ -95,6 +97,7 @@ function ProjectCard({ project }: { project: Project }) {
               href={project.live}
               target="_blank"
               rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-1.5 font-semibold transition-colors hover:text-[var(--color-accent)]"
             >
               Live <Icon name="external" size={15} />
@@ -105,11 +108,15 @@ function ProjectCard({ project }: { project: Project }) {
               href={project.source}
               target="_blank"
               rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-1.5 text-[var(--color-fg-dim)] transition-colors hover:text-[var(--color-fg)]"
             >
               Code <Icon name="github" size={15} />
             </a>
           )}
+          <span className="ml-auto flex items-center gap-1 font-mono text-xs text-[var(--color-fg-dim)] transition-colors group-hover:text-[var(--color-fg)]">
+            case study →
+          </span>
         </div>
       </div>
 
@@ -122,6 +129,7 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export function Projects() {
+  const [openProject, setOpenProject] = useState<Project | null>(null)
   return (
     <section id="projects" className="mx-auto max-w-7xl px-6 py-28 md:py-40">
       <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
@@ -141,9 +149,11 @@ export function Projects() {
 
       <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" y={60}>
         {projects.map((p) => (
-          <ProjectCard key={p.title} project={p} />
+          <ProjectCard key={p.title} project={p} onOpen={() => setOpenProject(p)} />
         ))}
       </Reveal>
+
+      <ProjectModal project={openProject} onClose={() => setOpenProject(null)} />
     </section>
   )
 }

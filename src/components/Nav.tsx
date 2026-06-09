@@ -5,6 +5,7 @@ import { Icon } from './Icon'
 
 const links = [
   { label: 'Work', href: '#projects' },
+  { label: 'Code', href: '#github-stats' },
   { label: 'Playground', href: '#playground' },
   { label: 'Photos', href: '#photography' },
   { label: 'Contact', href: '#contact' },
