@@ -17,6 +17,7 @@ export function ContactForm() {
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const root = useRef<HTMLDivElement>(null)
+  const submitting = useRef(false)
 
   const configured = WEB3FORMS_ACCESS_KEY !== 'YOUR_WEB3FORMS_ACCESS_KEY'
 
@@ -37,36 +38,55 @@ export function ContactForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = e.currentTarget
-    const data = Object.fromEntries(new FormData(form))
-
-    if (!configured) {
-      setErrorMsg('The form isn’t connected yet — drop the access key in ContactForm.tsx.')
+    if (submitting.current || !form.reportValidity()) return
+    const data = new FormData(form)
+    if (data.get('botcheck')) return
+    const name = String(data.get('name') ?? '').trim()
+    const email = String(data.get('email') ?? '').trim()
+    const message = String(data.get('message') ?? '').trim()
+    if (!name || !email || !message || name.length > 100 || email.length > 254 || message.length > 5000 || /[\r\n]/.test(name + email)) {
+      setErrorMsg('Please check your name, email, and message length.')
       setStatus('error')
       return
     }
 
+    if (!configured) {
+      setErrorMsg('The form is unavailable. Please use the email link beside it.')
+      setStatus('error')
+      return
+    }
+
+    submitting.current = true
     setStatus('sending')
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 15000)
     try {
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
+        signal: controller.signal,
+        credentials: 'omit',
+        referrerPolicy: 'strict-origin-when-cross-origin',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `Portfolio message from ${data.name || 'someone'}`,
+          subject: `Portfolio message from ${name}`,
           from_name: 'gerardocolegio.dev',
-          ...data,
+          name, email, message,
         }),
       })
       const json = await res.json()
-      if (json.success) {
+      if (res.ok && json.success === true) {
         setStatus('success')
         form.reset()
       } else {
-        throw new Error(json.message || 'Something went wrong')
+        throw new Error('Submission failed')
       }
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Network error — try again?')
+    } catch {
+      setErrorMsg('The message could not be confirmed. Please try again later or use the email link.')
       setStatus('error')
+    } finally {
+      window.clearTimeout(timeout)
+      submitting.current = false
     }
   }
 
@@ -101,29 +121,30 @@ export function ContactForm() {
 
   return (
     <div ref={root}>
-      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
+      <form onSubmit={onSubmit} aria-busy={status === 'sending'} className="space-y-4 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-8">
         {/* honeypot for bots */}
         <input type="checkbox" name="botcheck" className="hidden" tabIndex={-1} autoComplete="off" />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1.5 block font-mono text-xs uppercase tracking-wider text-[var(--color-fg-dim)]">Name</span>
-            <input name="name" required placeholder="Jane Doe" className={field} />
+            <input name="name" autoComplete="name" required maxLength={100} placeholder="Jane Doe" className={field} />
           </label>
           <label className="block">
             <span className="mb-1.5 block font-mono text-xs uppercase tracking-wider text-[var(--color-fg-dim)]">Email</span>
-            <input name="email" type="email" required placeholder="jane@company.com" className={field} />
+            <input name="email" autoComplete="email" type="email" required maxLength={254} placeholder="jane@company.com" className={field} />
           </label>
         </div>
 
         <label className="block">
           <span className="mb-1.5 block font-mono text-xs uppercase tracking-wider text-[var(--color-fg-dim)]">Message</span>
-          <textarea name="message" required rows={5} placeholder="Tell me about your project, role, or just say hi…" className={`${field} resize-none`} />
+          <textarea name="message" required maxLength={5000} rows={5} placeholder="Tell me about your project, role, or just say hi…" className={`${field} resize-none`} />
         </label>
 
         {status === 'error' && (
-          <p className="text-sm text-[var(--color-accent-3)]">{errorMsg}</p>
+          <p role="alert" className="text-sm text-[var(--color-accent-3)]">{errorMsg}</p>
         )}
+        <p className="text-xs text-[var(--color-fg-dim)]">Sending shares your name, email, and message with Web3Forms to deliver it to my inbox. Please avoid sensitive information.</p>
 
         <button
           type="submit"

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { isTouch, prefersReducedMotion } from '../lib/gsap'
+import { useReducedMotion } from '../lib/preferences'
 
 // Hover ripple distortion via a raw WebGL fragment shader. Progressive
 // enhancement: a normal <img> always renders; the canvas overlays it only when
@@ -65,6 +66,7 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 type Props = { src: string; alt: string; className?: string }
 
 export function WebGLImage({ src, alt, className }: Props) {
+  const reduced = useReducedMotion()
   const wrap = useRef<HTMLDivElement>(null)
   const img = useRef<HTMLImageElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -192,9 +194,15 @@ export function WebGLImage({ src, alt, className }: Props) {
       host.removeEventListener('pointermove', onMove)
       host.removeEventListener('pointerenter', onEnter)
       host.removeEventListener('pointerleave', onLeave)
-      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      cvs.style.opacity = '0'
+      image.removeEventListener('load', upload)
+      gl.deleteTexture(tex)
+      gl.deleteBuffer(buf)
+      gl.deleteProgram(prog)
+      gl.deleteShader(vs)
+      gl.deleteShader(fs)
     }
-  }, [src])
+  }, [src, reduced])
 
   return (
     <div ref={wrap} className={`relative ${className ?? ''}`}>

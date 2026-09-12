@@ -25,3 +25,12 @@ pnpm-debug.log*
 *.sln
 *.sw?
 .idea
+
+# Local secrets must never be added to this public repository.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx

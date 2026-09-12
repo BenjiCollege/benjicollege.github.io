@@ -84,6 +84,13 @@
         .glitch::before, .glitch::after { animation: none; }
         .orbit * { animation: none !important; }
       }
+      @keyframes orbit-turn { to { transform: rotate(360deg); } }
+      @keyframes arrive { from { transform: translateY(24px); } to { transform: none; } }
+      .orbit .dot { transform-origin: 500px 500px; animation: orbit-turn 8s linear infinite; }
+      .orbit .dot:nth-of-type(2) { animation-duration: 12s; }
+      .orbit .dot:nth-of-type(3) { animation-duration: 16s; }
+      .wrap > * { animation: arrive .7s ease-out both; }
+      @media (prefers-reduced-motion: reduce) { .orbit .dot, .wrap > * { animation: none; } }
     </style>
   </head>
   <body>
@@ -107,26 +114,5 @@
       <p class="code">// you took a wrong turn in the matrix</p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-    <script>
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (window.gsap && !reduce) {
-        // Slide-only entrance (no opacity) so content is NEVER hidden if rAF is
-        // throttled (e.g. a backgrounded tab) — a 404 must always be readable.
-        gsap.from('.wrap > *', { y: 24, duration: 0.7, stagger: 0.08, ease: 'power3.out', delay: 0.1 })
-        // orbiting dots around the center
-        document.querySelectorAll('.orbit .dot').forEach((dot, i) => {
-          gsap.to(dot, {
-            duration: 8 + i * 4,
-            repeat: -1,
-            ease: 'none',
-            rotation: 360,
-            transformOrigin: '500px 500px',
-            svgOrigin: '500 500',
-          })
-        })
-        gsap.to('.ring', { rotation: 360, duration: 60, repeat: -1, ease: 'none', svgOrigin: '500 500', stagger: 6 })
-      }
-    </script>
   </body>
 </html>

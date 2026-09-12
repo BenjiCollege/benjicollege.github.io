@@ -1,78 +1,58 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ACCENTS } from '../lib/accent'
 import { useAccent } from '../hooks/useAccent'
 import { useSound } from '../hooks/useSound'
 import { sound } from '../lib/sound'
-import { Icon } from './Icon'
+import { setMotion, setTheme, useMotion, useTheme, type Motion } from '../lib/preferences'
+import { Dialog } from './Dialog'
 
 export const OPEN_PALETTE_EVENT = 'open-command-palette'
 
-const INTERACTIVE = 'a, button, [data-cursor]'
-
-/**
- * Bottom-right control cluster: accent swatches, a sound toggle, and a ⌘K
- * launcher. Also hosts the global UI-sound listeners (they no-op until the
- * visitor enables sound).
- */
 export function FloatingDock() {
-  const [active, setAccent] = useAccent()
+  const [open, setOpen] = useState(false)
+  const [accent, setAccent] = useAccent()
   const [soundOn, setSoundOn] = useSound()
-
-  // Global hover/click sounds — attached once, gated by the toggle internally.
+  const theme = useTheme()
+  const motion = useMotion()
   useEffect(() => {
-    const onOver = (e: Event) => {
-      if ((e.target as HTMLElement).closest?.(INTERACTIVE)) sound.hover()
-    }
-    const onClick = (e: Event) => {
-      if ((e.target as HTMLElement).closest?.(INTERACTIVE)) sound.click()
-    }
-    document.addEventListener('pointerover', onOver)
-    document.addEventListener('click', onClick)
-    return () => {
-      document.removeEventListener('pointerover', onOver)
-      document.removeEventListener('click', onClick)
-    }
+    const hover = (e: Event) => { if ((e.target as HTMLElement).closest?.('a, button')) sound.hover() }
+    const click = (e: Event) => { if ((e.target as HTMLElement).closest?.('a, button')) sound.click() }
+    document.addEventListener('pointerover', hover)
+    document.addEventListener('click', click)
+    return () => { document.removeEventListener('pointerover', hover); document.removeEventListener('click', click) }
   }, [])
-
-  return (
-    <div className="fixed bottom-5 right-5 z-40 flex items-center gap-3">
-      <div className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-surface)]/80 px-3 py-2 backdrop-blur">
-        {ACCENTS.map((a) => (
-          <button
-            key={a.name}
-            onClick={() => setAccent(a.name)}
-            aria-label={`${a.label} accent`}
-            data-cursor
-            className="h-4 w-4 rounded-full transition-transform hover:scale-125"
-            style={{
-              background: a.value,
-              outline: active === a.name ? `2px solid ${a.value}` : 'none',
-              outlineOffset: '2px',
-            }}
-          />
-        ))}
-      </div>
-
-      <button
-        onClick={() => setSoundOn(!soundOn)}
-        data-cursor
-        aria-label={soundOn ? 'Mute UI sounds' : 'Enable UI sounds'}
-        aria-pressed={soundOn}
-        className={`flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-surface)]/80 backdrop-blur transition-colors ${
-          soundOn ? 'text-[var(--color-accent)]' : 'text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]'
-        }`}
-      >
-        <Icon name={soundOn ? 'sound-on' : 'sound-off'} size={17} />
-      </button>
-
-      <button
-        onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))}
-        data-cursor
-        aria-label="Open command palette"
-        className="flex items-center gap-1.5 rounded-full border border-[var(--color-line)] bg-[var(--color-surface)]/80 px-3 py-2 font-mono text-xs text-[var(--color-fg-dim)] backdrop-blur transition-colors hover:text-[var(--color-fg)]"
-      >
-        <kbd className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px]">⌘K</kbd>
+  return <>
+    <div className="settings-launcher fixed bottom-5 right-5 z-40">
+      <button aria-haspopup="dialog" onClick={() => setOpen(true)} className="flex min-h-11 items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-surface)] px-4 text-sm font-semibold shadow-lg">
+        <span aria-hidden="true" className="text-[var(--color-accent)]">✦</span> Settings
       </button>
     </div>
-  )
+    {open && <Dialog label="Site settings" onClose={() => setOpen(false)} className="settings-dialog">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-display text-2xl font-bold">Make it yours.</h2>
+        <button autoFocus aria-label="Close settings" onClick={() => setOpen(false)} className="min-h-11 min-w-11 rounded-full border border-[var(--color-line)]">✕</button>
+      </div>
+      <p className="mt-2 text-sm text-[var(--color-fg-dim)]">Same personality. Your kind of experience.</p>
+      <fieldset className="mt-6">
+        <legend className="mb-2 text-sm font-semibold">Appearance</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {(['dark', 'light'] as const).map(value => <button key={value} aria-pressed={theme === value} onClick={() => setTheme(value)} className="preference-button capitalize">{value === 'dark' ? '☾' : '☀'} {value}</button>)}
+        </div>
+      </fieldset>
+      <fieldset className="mt-6">
+        <legend className="mb-2 text-sm font-semibold">Motion</legend>
+        <div className="grid gap-2">
+          {([{ value: 'full', label: 'Full experience', help: 'All the movement, all the fun.' }, { value: 'reduced', label: 'Reduced motion', help: 'Still layouts and instant transitions.' }, { value: 'system', label: 'Follow device', help: 'Full experience unless your device requests less motion.' }] as {value: Motion; label: string; help: string}[]).map(item => <button key={item.value} aria-pressed={motion === item.value} onClick={() => setMotion(item.value)} className="preference-button text-left"><span className="block font-semibold">{item.label}</span><span className="block text-sm text-[var(--color-fg-dim)]">{item.help}</span></button>)}
+        </div>
+      </fieldset>
+      <fieldset className="mt-6">
+        <legend className="mb-2 text-sm font-semibold">Accent color</legend>
+        <div className="flex flex-wrap gap-2">
+          {ACCENTS.map(a => <button key={a.name} aria-label={`${a.label} accent`} aria-pressed={accent === a.name} onClick={() => setAccent(a.name)} className="preference-button grid h-11 w-11 place-items-center !p-0"><span className="h-6 w-6 rounded-full" style={{ background: a.value }} /></button>)}
+        </div>
+      </fieldset>
+      <button aria-pressed={soundOn} onClick={() => setSoundOn(!soundOn)} className="preference-button mt-6 w-full">UI sounds: {soundOn ? 'on' : 'off'}</button>
+      <button onClick={() => { setOpen(false); window.setTimeout(() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT)), 0) }} className="mt-4 min-h-11 w-full text-sm underline underline-offset-4">Open command palette <span className="text-[var(--color-fg-dim)]">(Ctrl / ⌘ K)</span></button>
+    </Dialog>}
+  </>
 }

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import type Lenis from 'lenis'
 import { gsap, useGSAP, ScrollTrigger, isTouch, prefersReducedMotion } from '../lib/gsap'
 import { projects, type Project } from '../data/projects'
+import { projectPath } from '../lib/navigation'
+import { useReducedMotion } from '../lib/preferences'
 import { Reveal } from '../components/Reveal'
 import { Icon } from '../components/Icon'
-import { ProjectModal } from '../components/ProjectModal'
 import { WebGLImage } from '../components/WebGLImage'
 
 const accents = [
@@ -13,7 +15,7 @@ const accents = [
   'var(--color-accent-4)',
 ]
 
-function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void }) {
+function ProjectCard({ project }: { project: Project }) {
   const ref = useRef<HTMLElement>(null)
   const accent = accents[project.accent ?? 0]
 
@@ -49,14 +51,13 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
     <article
       ref={ref}
       data-cursor-label="VIEW"
-      onClick={onOpen}
-      className="group relative cursor-pointer overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] [transform-style:preserve-3d]"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] [transform-style:preserve-3d]"
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         {project.image ? (
           <WebGLImage src={project.image} alt={project.title} className="h-full w-full" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-surface-2)] to-[var(--color-ink)] px-6 text-center">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-accent)]/20 via-[var(--color-surface-2)] to-[var(--color-accent-2)]/20 px-6 text-center">
             <span className="font-display text-2xl font-bold text-[var(--color-fg-dim)]">{project.title}</span>
           </div>
         )}
@@ -75,8 +76,8 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
         )}
       </div>
 
-      <div className="p-6">
-        <h3 className="font-display text-2xl font-bold">{project.title}</h3>
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="font-display text-2xl font-bold"><a href={projectPath(project.slug)}>{project.title}</a></h3>
         <p className="mt-2 text-sm text-[var(--color-fg-dim)]">{project.blurb}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -90,7 +91,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
           ))}
         </div>
 
-        <div className="mt-5 flex items-center gap-4 text-sm">
+        <div className="mt-auto flex flex-wrap items-center gap-4 pt-5 text-sm">
           {project.live && (
             <a
               href={project.live}
@@ -113,9 +114,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
               Code <Icon name="github" size={15} />
             </a>
           )}
-          <span className="ml-auto flex items-center gap-1 font-mono text-xs text-[var(--color-fg-dim)] transition-colors group-hover:text-[var(--color-fg)]">
-            case study →
-          </span>
+          <a href={projectPath(project.slug)} aria-label={`Read ${project.title} project story`} className="ml-auto inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-accent)]">Project story →</a>
         </div>
       </div>
 
@@ -127,9 +126,9 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
   )
 }
 
-function Header() {
+function Header({ horizontal, onToggle }: { horizontal: boolean; onToggle?: () => void }) {
   return (
-    <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+    <div className="project-header mb-12 flex flex-wrap items-end justify-between gap-6">
       <div>
         <Reveal as="p" className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-[var(--color-accent)]">
           // selected work
@@ -139,89 +138,158 @@ function Header() {
         </Reveal>
       </div>
       <Reveal as="p" className="max-w-sm text-[var(--color-fg-dim)]">
-        A mix of shipped projects and active experiments — scroll sideways.
+        Public projects, from interactive websites to apps in development. {horizontal ? 'Scroll to explore the collection.' : 'Choose a project to explore the story and source.'}
       </Reveal>
+      <div className="flex flex-wrap items-center gap-4">
+        {onToggle && <button onClick={onToggle} className="preference-button text-sm">{horizontal ? 'Switch to grid view' : 'Switch to scroll view'}</button>}
+        {horizontal && <a href="/#about" className="inline-flex min-h-11 items-center text-sm text-[var(--color-fg-dim)]">After the projects ↓</a>}
+      </div>
     </div>
   )
 }
 
 export function Projects() {
-  const [openProject, setOpenProject] = useState<Project | null>(null)
-  const [horizontal, setHorizontal] = useState(false)
+  const reduced = useReducedMotion()
+  const [horizontal, setHorizontal] = useState(() => window.matchMedia('(min-width: 1024px) and (min-height: 800px)').matches && !isTouch() && !prefersReducedMotion())
+  const [grid, setGrid] = useState(false)
   const section = useRef<HTMLElement>(null)
   const track = useRef<HTMLDivElement>(null)
+  const viewport = useRef<HTMLDivElement>(null)
+  const content = useRef<HTMLDivElement>(null)
+  const progress = useRef<HTMLDivElement>(null)
+  const pin = useRef<ScrollTrigger | null>(null)
+  const changingView = useRef(false)
+  const toggleGrid = (value: boolean) => { changingView.current = true; setGrid(value) }
 
-  // Horizontal pinned scroll only on real desktops without reduced-motion.
+  useEffect(() => {
+    if (!changingView.current || !section.current) return
+    changingView.current = false
+    const frame = requestAnimationFrame(() => {
+      const target = section.current!
+      const y = target.getBoundingClientRect().top + window.scrollY - (horizontal ? 0 : 80)
+      const lenis = (window as Window & { __lenis?: Lenis }).__lenis
+      lenis?.resize()
+      if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
+      else window.scrollTo({ top: y, behavior: 'instant' })
+      target.querySelector<HTMLButtonElement>('.project-header button')?.focus({ preventScroll: true })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [horizontal])
+
+  // Small/touch/reduced-motion layouts retain ordinary document scrolling.
   useEffect(() => {
     const decide = () =>
       setHorizontal(
-        window.matchMedia('(min-width: 1024px)').matches && !isTouch() && !prefersReducedMotion(),
+        window.matchMedia('(min-width: 1024px) and (min-height: 800px)').matches && !isTouch() && !prefersReducedMotion() && !grid,
       )
     decide()
     window.addEventListener('resize', decide)
     return () => window.removeEventListener('resize', decide)
-  }, [])
+  }, [reduced, grid])
 
   useGSAP(
     () => {
       if (!horizontal || !track.current || !section.current) return
-      const distance = () => track.current!.scrollWidth - window.innerWidth + 80
+      const host = section.current
+      const rail = track.current
+      const frame = viewport.current!
+      const body = content.current!
+      const distance = () => Math.max(0, rail.scrollWidth - frame.clientWidth)
+      // CSS sticky owns the layout. GSAP only moves the artwork, so refreshes
+      // never insert/remove a pin spacer beneath an active smooth scroll.
+      const measure = () => {
+        const height = Math.max(window.innerHeight, body.offsetHeight + 96)
+        frame.style.height = `${height}px`
+        frame.style.top = `${Math.min(0, window.innerHeight - height)}px`
+        host.style.height = `${height + distance()}px`
+        return height
+      }
+      measure()
       const tween = gsap.to(track.current, {
         x: () => -distance(),
         ease: 'none',
         scrollTrigger: {
           trigger: section.current,
-          start: 'top top',
+          start: () => `top ${Math.min(0, window.innerHeight - frame.offsetHeight)}px`,
           end: () => '+=' + distance(),
-          pin: true,
-          scrub: 1,
+          scrub: true,
           invalidateOnRefresh: true,
+          onRefreshInit: measure,
+          onUpdate: (self) => { if (progress.current) progress.current.style.transform = `scaleX(${self.progress})` },
         },
       })
-      requestAnimationFrame(() => ScrollTrigger.refresh())
+      pin.current = tween.scrollTrigger ?? null
+      let pending = 0
+      const observer = new ResizeObserver(() => {
+        cancelAnimationFrame(pending)
+        pending = requestAnimationFrame(() => ScrollTrigger.refresh())
+      })
+      observer.observe(body)
+      observer.observe(rail)
+      pending = requestAnimationFrame(() => ScrollTrigger.refresh())
       return () => {
+        observer.disconnect()
+        cancelAnimationFrame(pending)
+        pin.current = null
         tween.scrollTrigger?.kill()
         tween.kill()
+        host.style.removeProperty('height')
+        frame.style.removeProperty('height')
+        frame.style.removeProperty('top')
       }
     },
     { scope: section, dependencies: [horizontal] },
   )
 
   const cards = projects.map((p) => (
-    <ProjectCard key={p.title} project={p} onOpen={() => setOpenProject(p)} />
+    <ProjectCard key={p.slug} project={p} />
   ))
 
   return (
-    <section ref={section} id="projects" className={horizontal ? 'relative' : 'mx-auto max-w-7xl px-6 py-28 md:py-40'}>
+    <section ref={section} id="projects" data-project-layout={horizontal ? 'rail' : 'grid'} className={horizontal ? 'project-scroll relative' : 'mx-auto max-w-7xl px-6 py-28 md:py-40'}>
       {horizontal ? (
-        <div className="flex h-screen flex-col justify-center overflow-hidden">
+        <div ref={viewport} className="project-viewport">
+          <div ref={content} className="project-content">
           <div className="mx-auto w-full max-w-7xl px-6">
-            <Header />
+            <Header horizontal onToggle={() => toggleGrid(true)} />
           </div>
           <div
             ref={track}
-            className="flex gap-6 pr-[10vw] pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]"
+            onFocusCapture={(event) => {
+              if (!event.target.matches(':focus-visible') || !pin.current || !track.current) return
+              const card = event.target.closest<HTMLElement>('[data-project-card]')
+              if (!card) return
+              const trigger = pin.current
+              const inset = parseFloat(getComputedStyle(track.current).paddingLeft)
+              const position = trigger.start + Math.min(trigger.end - trigger.start, Math.max(0, card.offsetLeft - inset))
+              const lenis = (window as Window & { __lenis?: Lenis }).__lenis
+              if (lenis) lenis.scrollTo(position, { immediate: true })
+              else window.scrollTo({ top: position, behavior: 'instant' })
+              trigger.update()
+            }}
+            className="project-track relative flex w-max min-w-full gap-6 px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]"
           >
             {cards.map((card) => (
-              <div key={card.key} className="w-[400px] shrink-0">
+              <div key={card.key} data-project-card className="w-[400px] shrink-0">
                 {card}
               </div>
             ))}
-            <div className="flex w-[20vw] shrink-0 items-center font-mono text-sm text-[var(--color-fg-dim)]">
-              that's the lot →
-            </div>
+          </div>
+          <div className="mx-auto mt-8 max-w-7xl px-6" aria-hidden="true">
+            <div className="mb-3 flex justify-between font-mono text-[11px] uppercase tracking-widest text-[var(--color-fg-dim)]"><span>01 / {String(projects.length).padStart(2, '0')} · scroll to explore</span><span>keep going ↓</span></div>
+            <div className="h-px bg-[var(--color-line)]"><div ref={progress} className="h-full origin-left scale-x-0 bg-[var(--color-accent)]" /></div>
+          </div>
           </div>
         </div>
       ) : (
         <>
-          <Header />
+          <Header horizontal={false} onToggle={grid && !reduced ? () => toggleGrid(false) : undefined} />
           <Reveal stagger className="grid gap-6 sm:grid-cols-2" y={60}>
             {cards}
           </Reveal>
         </>
       )}
 
-      <ProjectModal project={openProject} onClose={() => setOpenProject(null)} />
     </section>
   )
 }

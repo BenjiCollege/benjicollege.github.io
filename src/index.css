@@ -1,5 +1,171 @@
 @import 'tailwindcss';
 
+/* Benji's channel layout: scoped Twitch-style tokens leave the portfolio intact. */
+.twitch-shell { --tw-bg: #0e0e10; --tw-panel: #18181b; --tw-fg: #efeff1; --tw-muted: #adadb8; --tw-line: #35353b; --tw-purple: #9146ff; --tw-link: #bf94ff; display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: min(700px, calc(100svh - 96px)); min-height: 0; max-width: 1200px; margin-inline: auto; background: var(--tw-bg); color: var(--tw-fg); border: 1px solid var(--tw-line); border-radius: 8px; overflow: clip; font-family: Inter, Arial, sans-serif; }
+.twitch-chat-only { grid-template-columns: minmax(0, 1fr); max-width: 640px; margin-inline: auto; }
+.twitch-channel { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.twitch-player { position: relative; isolation: isolate; flex: 1 0 210px; min-height: 210px; overflow: clip; background: #08080a; color: #efeff1; }
+.twitch-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .6; }
+.twitch-player-shade { position: absolute; inset: 0; background: linear-gradient(0deg,#08080a 0%,#08080a55 60%,#08080a66), linear-gradient(90deg,#08080aaa,transparent); }
+.twitch-preview-label { position: absolute; left: 20px; top: 20px; padding: 5px 8px; border-radius: 3px; background: #08080abf; font: 10px var(--font-mono); letter-spacing: .08em; }
+.twitch-player-title { position: absolute; left: clamp(24px,4vw,48px); right: 20px; bottom: 62px; }
+.twitch-player-title > p { margin-bottom: 12px; font: 11px var(--font-mono); letter-spacing: .3em; color: #d4bbff; }
+.twitch-player-title h3 { font-size: clamp(28px,3.2vw,44px); line-height: 1.07; font-weight: 700; }
+.twitch-player-title h3 span { color: #bf94ff; }
+.twitch-button { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; border-radius: 6px; padding: 8px 13px; background: #9146ff; color: white; font-size: 13px; font-weight: 700; }
+.twitch-button:hover { background: #772ce8; }
+.twitch-button:disabled { background: #4e4261; color: #bbb5c5; }
+.twitch-player-title .twitch-button { margin-top: 16px; }
+.twitch-player-controls { position: absolute; bottom: 0; inset-inline: 0; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; font-size: 12px; }
+.twitch-player-controls button { font-size: 24px; width: 44px; min-height: 44px; }
+.twitch-channel-info { display: flex; flex-shrink: 0; gap: 12px; padding: 16px; }
+.twitch-channel-info > img { width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; object-fit: cover; border: 2px solid #9146ff; }
+.twitch-channel-copy { min-width: 0; }
+.twitch-channel-copy h3 { font: 700 18px/1.3 Inter, Arial, sans-serif; }
+.twitch-channel-copy h3 span { color: var(--tw-link); }
+.twitch-channel-copy p { margin-top: 4px; font-size: 13px; font-weight: 600; line-height: 1.5; }
+.twitch-channel-copy > a { display: inline-block; margin-top: 4px; color: var(--tw-link); font-size: 13px; }
+.twitch-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.twitch-tags span { background: var(--tw-line); border-radius: 20px; padding: 3px 10px; color: var(--tw-muted); font-size: 11px; }
+.twitch-about-channel { flex-shrink: 0; margin: 0 16px 12px; padding: 10px 12px; background: var(--tw-panel); border-radius: 4px; }
+.twitch-about-channel summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+.twitch-about-channel p { margin-top: 12px; font-size: 13px; line-height: 1.7; }
+.twitch-about-channel > div { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 14px; font-size: 13px; color: var(--tw-link); }
+.twitch-about-channel .twitch-disclaimer { font-size: 11px; color: var(--tw-muted); }
+.twitch-chat { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; background: var(--tw-panel); border-left: 1px solid var(--tw-line); }
+.twitch-chat-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; height: 46px; padding: 4px 6px; border-bottom: 1px solid var(--tw-line); }
+.twitch-chat-header h3 { font: 600 14px Inter, Arial, sans-serif; }
+.twitch-chat-header button, .twitch-chat-tools > button:not(.twitch-send), .twitch-composer > button { min-height: 36px; min-width: 36px; border-radius: 4px; font-size: 20px; }
+.twitch-chat-header button:hover, .twitch-chat-tools > button:hover, .twitch-composer > button:hover { background: #80808022; }
+.twitch-regulars { display: flex; align-items: center; flex-shrink: 0; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--tw-line); }
+.twitch-regular-star { color: #e6c16a; font-size: 28px; }
+.twitch-regulars strong { display: block; font-size: 14px; }
+.twitch-regulars div > span { display: block; font-size: 10px; color: var(--tw-muted); margin-top: 4px; }
+.twitch-regular-friends { margin-left: auto; }
+.twitch-regular-friends span:first-child { color: #bf94ff; }
+.twitch-chat-notice { flex-shrink: 0; padding: 8px 12px; font-size: 12px; color: var(--tw-muted); }
+.twitch-chat-notice small { display: block; font-size: 10px; margin-top: 3px; }
+.twitch-chat .chat-messages { flex: 1 1 0; min-height: 0; height: auto; padding: 4px 12px; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+.twitch-chat .chat-line { font-size: 13px; line-height: 1.5; padding: 5px 0; }
+.twitch-chat .chat-time { color: var(--tw-muted); font-size: 10px; }
+.twitch-chat .chat-badge { color: #fff; background: #00875a; border: 0; padding: 2px 3px; }
+.twitch-chat .chat-color-0 { --chat-color: #00db84; }
+.twitch-chat .chat-color-1 { --chat-color: #c29bff; }
+.twitch-chat .chat-color-2 { --chat-color: #66b7ff; }
+.twitch-chat .chat-color-3 { --chat-color: #ffa766; }
+.twitch-chat .chat-guide-reply { margin-block: 6px; padding: 8px 10px; background: #9146ff12; border-left-color: #9146ff; }
+.twitch-chat .chat-line .chat-emote { width: 26px; height: 26px; margin-inline: 2px; }
+.twitch-chat .chat-reply-links { display: grid; gap: 2px; margin-top: 6px; }
+.twitch-chat .chat-reply-links a { min-height: 28px; padding-block: 3px; line-height: 1.4; color: var(--tw-link); }
+.twitch-chat-bottom { flex-shrink: 0; padding: 4px 10px 8px; border-top: 1px solid var(--tw-line); position: relative; }
+.twitch-chat .chat-jump { margin: 0; min-height: 26px; padding: 3px; border: 0; color: var(--tw-link); font: 10px Inter, Arial, sans-serif; }
+.twitch-chat .chat-jump:disabled { color: var(--tw-muted); }
+.twitch-chat .chat-prompts { gap: 4px; margin: 0 0 4px; }
+.twitch-chat .chat-prompts button { min-height: 28px; padding: 4px 6px; border: 0; color: var(--tw-link); font: 11px Inter, Arial, sans-serif; }
+.twitch-composer { display: flex; border: 2px solid #67676f; border-radius: 5px; padding: 3px; }
+.twitch-composer:focus-within { border-color: #a970ff; }
+.twitch-composer input { width: 100%; min-width: 0; background: transparent; padding: 8px; color: var(--tw-fg); font-size: 13px; }
+.twitch-composer input::placeholder { color: var(--tw-muted); }
+.twitch-composer input:focus-visible { outline: none; }
+.twitch-chat-tools { display: flex; gap: 4px; align-items: center; margin-top: 8px; }
+.twitch-chat-tools .twitch-pause { font-size: 11px !important; padding-inline: 6px; color: var(--tw-muted); }
+.twitch-chat-tools .twitch-send { margin-left: auto; border-radius: 20px; }
+.twitch-diamond { color: #bf94ff; }
+.twitch-emote-picker { position: absolute; bottom: calc(100% - 26px); left: 10px; right: 10px; max-height: min(220px, 40svh); overflow-y: auto; padding: 8px; display: flex; flex-wrap: wrap; background: var(--tw-bg); border: 1px solid var(--tw-line); border-radius: 5px; box-shadow: 0 5px 30px #0005; z-index: 3; }
+.twitch-shell button, .twitch-shell a { touch-action: manipulation; }
+:root[data-theme='light'] .twitch-shell { --tw-bg: #f7f7f8; --tw-panel: #fff; --tw-fg: #1f1f23; --tw-muted: #64646c; --tw-line: #dedee3; --tw-link: #772ce8; }
+:root[data-theme='light'] .twitch-chat .chat-color-0 { --chat-color: #007a49; }
+:root[data-theme='light'] .twitch-chat .chat-color-1 { --chat-color: #772ce8; }
+:root[data-theme='light'] .twitch-chat .chat-color-2 { --chat-color: #176fa8; }
+:root[data-theme='light'] .twitch-chat .chat-color-3 { --chat-color: #a74b00; }
+@media (max-width: 900px) {
+  .twitch-shell { grid-template-columns: minmax(0, 1fr); height: auto; max-width: 680px; }
+  .twitch-chat { height: min(620px, calc(100svh - 80px)); border-left: 0; border-top: 1px solid var(--tw-line); }
+  .twitch-channel { overflow: visible; }
+  .twitch-player { flex: none; height: 260px; }
+}
+@media (max-width: 479px) {
+  .twitch-player { height: 240px; }
+  .twitch-player-title { left: 20px; bottom: 56px; }
+  .twitch-player-title > p { margin-bottom: 8px; }
+  .twitch-player-title h3 { font-size: 28px; }
+  .twitch-channel-info { padding: 12px; gap: 10px; }
+  .twitch-channel-info > img { width: 40px; height: 40px; }
+  .twitch-about-channel { margin-inline: 12px; }
+  .twitch-composer input { font-size: 16px; }
+}
+@media (max-height: 540px) {
+  .twitch-shell { height: calc(100svh - 32px); }
+  .twitch-chat { height: 100%; }
+  .twitch-regulars, .twitch-chat-notice { display: none; }
+  .twitch-channel-info { padding: 10px; }
+  .twitch-tags { display: none; }
+}
+@media (max-width: 900px) and (max-height: 540px) {
+  .twitch-shell { height: auto; }
+  .twitch-chat { height: calc(100svh - 32px); }
+}
+
+/* Native sticky layout keeps the animated rail in normal document flow. */
+.project-viewport { position: sticky; top: 0; display: flex; align-items: center; overflow: clip; min-height: 100vh; }
+.project-content { width: 100%; padding-block: 8px; }
+.project-scroll .project-header { margin-bottom: 24px; gap: 16px; }
+.project-scroll .project-header h2 { font-size: clamp(2rem, 4vw, 3.5rem); max-width: 40rem; }
+.project-scroll .project-header > div:first-child { flex: 1 1 55%; }
+.project-scroll .project-header > p { flex: 1 1 30%; font-size: 14px; }
+.project-track { will-change: transform; }
+@media (max-width: 1023px), (max-height: 799px), (hover: none), (pointer: coarse) {
+  .project-header > div > button { display: none; }
+}
+
+.timeline-dot { width: 19px; height: 19px; border-radius: 50%; background: var(--color-bg); border: 3px solid var(--color-accent-2); z-index: 1; }
+.timeline-dot-current { border-color: var(--color-accent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.career-card { transition: border-color .25s, box-shadow .25s; }
+.career-card:hover { border-color: var(--color-accent-2); box-shadow: 0 12px 45px -25px var(--color-accent-2); }
+
+.stream-shell { overflow: clip; border: 1px solid color-mix(in srgb, var(--color-accent-2) 45%, var(--color-line)); border-radius: 24px; background: var(--color-surface); box-shadow: 0 20px 80px -45px var(--color-accent-2); }
+.stream-topbar { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--color-line); }
+.stream-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent-3); box-shadow: 0 0 12px var(--color-accent-3); }
+.stream-stage { position: relative; isolation: isolate; display: grid; align-content: center; padding: clamp(24px, 4vw, 48px); overflow: clip; background: radial-gradient(ellipse at 20% 30%, color-mix(in srgb, var(--color-accent-2) 18%, transparent), transparent 70%), var(--color-bg); }
+.stream-grid { position: absolute; inset: -60px; opacity: .12; background-image: linear-gradient(var(--color-accent-2) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent-2) 1px, transparent 1px); background-size: 40px 40px; transform: rotate(-12deg) scale(1.2); }
+.stream-running .stream-grid { animation: stream-grid-drift 14s linear infinite; }
+.stream-running .stream-mascot { animation: mascot-bob 3s ease-in-out infinite; }
+.stream-mascot .chat-emote { width: 80px; height: 80px; image-rendering: pixelated; }
+.stream-chat { min-width: 0; padding: 24px; border-left: 1px solid var(--color-line); }
+.chat-messages { height: 350px; overflow-y: auto; overflow-x: hidden; overflow-anchor: none; scrollbar-width: thin; padding: 4px; }
+.chat-line { padding: 9px 0; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.stream-running .chat-line { animation: chat-arrive .35s ease-out both; }
+.chat-username { font-weight: 700; color: var(--chat-color); }
+.chat-time { color: var(--color-fg-dim); font: 10px var(--font-mono); margin-right: 5px; }
+.chat-topic { border-block: 1px solid var(--color-line); padding: 12px 0; margin-bottom: 10px; color: var(--color-accent); font-size: 12px; }
+.chat-guide-reply { border-left: 2px solid var(--color-accent-3); padding: 10px; margin-block: 8px; background: color-mix(in srgb, var(--color-accent-3) 6%, transparent); border-radius: 0 8px 8px 0; }
+.chat-reply-links { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; }
+.chat-reply-links a { display: inline-flex; align-items: center; min-height: 36px; color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+.chat-prompts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chat-prompts button, .chat-jump { min-height: 36px; border: 1px solid var(--color-line); border-radius: 8px; padding: 6px 10px; color: var(--color-accent); font: 11px var(--font-mono); }
+.chat-prompts button:hover, .chat-jump:hover { border-color: var(--color-accent); background: var(--color-surface-2); }
+.chat-jump { width: 100%; margin-top: 8px; }
+.chat-color-0 { --chat-color: var(--color-accent); }
+.chat-color-1 { --chat-color: var(--color-accent-2); }
+.chat-color-2 { --chat-color: var(--color-accent-3); }
+.chat-color-3 { --chat-color: var(--color-accent-4); }
+.chat-badge { display: inline-block; padding: 1px 4px; margin-right: 5px; font: 8px var(--font-mono); border: 1px solid var(--chat-color); border-radius: 3px; color: var(--chat-color); vertical-align: middle; }
+.chat-emote { display: inline-block; width: 32px; height: 32px; object-fit: contain; vertical-align: middle; }
+.emote-button { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid transparent; border-radius: 10px; transition: background .2s, transform .2s; }
+.emote-button:hover { border-color: var(--color-accent-2); background: var(--color-surface-2); transform: translateY(-3px); }
+.raid-button { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 12px; background: var(--color-accent-2); color: #fff; font-size: 13px; font-weight: 700; transition: filter .2s, transform .2s; }
+.raid-button:hover { filter: brightness(1.12); transform: translateY(-2px); }
+.emote-shower { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: clip; }
+.emote-particle { position: absolute; top: -55px; animation: emote-fall 3s cubic-bezier(.3,.1,.65,.9) both; }
+.emote-particle .chat-emote { width: 48px; height: 48px; image-rendering: pixelated; }
+.stream-still *, .stream-still *::before { animation-play-state: paused !important; }
+@keyframes stream-grid-drift { to { background-position: 40px 40px; } }
+@keyframes mascot-bob { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-12px) rotate(5deg); } }
+@keyframes chat-arrive { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+@keyframes emote-fall { 0% { opacity: 0; transform: translate(0, 0) rotate(0); } 8% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--drift), 780px) rotate(var(--spin)); } }
+@media (max-width: 1023px) { .stream-chat { border-left: 0; border-top: 1px solid var(--color-line); } .stream-stage { min-height: 450px; } }
+@media (max-width: 479px) { .stream-chat { padding: 18px; } .stream-topbar { padding: 16px 18px; } .chat-messages { height: 390px; } }
+
 /* ------------------------------------------------------------------ */
 /*  Design tokens — dark "GitHub-at-night" palette w/ neon accents     */
 /* ------------------------------------------------------------------ */
@@ -86,17 +252,55 @@
   }
 
   /* Reduced motion — calm everything down */
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.001ms !important;
-      transition-duration: 0.001ms !important;
-    }
+  html[data-motion='reduced'] { scroll-behavior: auto; }
+  html[data-motion='reduced'] *, html[data-motion='reduced'] *::before, html[data-motion='reduced'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
+  :focus-visible { outline: 3px solid var(--color-accent); outline-offset: 4px; }
+  section[id] { scroll-margin-top: 90px; }
+}
+
+:root[data-theme='light'] {
+  --color-ink: #ffffff;
+  --color-bg: #f5f7fc;
+  --color-surface: #ffffff;
+  --color-surface-2: #e8edf6;
+  --color-line: #c9d2e2;
+  --color-fg: #172238;
+  --color-fg-dim: #4b5870;
+  --color-accent-2: #6540cf;
+  --color-accent-3: #b72559;
+  --color-accent-4: #8b5b00;
+}
+.portfolio-dialog {
+  margin: auto;
+  width: min(48rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  color: var(--color-fg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 1.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 30px 100px #0005;
+}
+.portfolio-dialog::backdrop { background: #05070ab8; backdrop-filter: blur(8px); }
+.dialog-content { padding: clamp(1rem, 4vw, 2rem); }
+.settings-dialog { max-width: 27rem; }
+.photo-dialog { max-width: 72rem; width: calc(100% - 2rem); }
+.preference-button { min-height: 44px; border: 1px solid var(--color-line); border-radius: 12px; padding: 10px 14px; }
+.preference-button[aria-pressed='true'] { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface)); }
+.preference-button:hover { border-color: var(--color-accent); }
+.skip-link { position: fixed; top: 1rem; left: 1rem; z-index: 250; transform: translateY(-200%); background: var(--color-surface); padding: 1rem; border-radius: 1rem; }
+.skip-link:focus { transform: none; }
+footer { padding-bottom: 6rem !important; }
+body.custom-cursor:has(dialog[open]), body.custom-cursor:has(dialog[open]) * { cursor: auto !important; }
+body.custom-cursor:has(dialog[open]) button, body.custom-cursor:has(dialog[open]) a { cursor: pointer !important; }
+@media (max-width: 639px) {
+  .settings-launcher { bottom: max(.75rem, env(safe-area-inset-bottom)); right: .75rem; }
 }
 
 /* ------------------------------------------------------------------ */

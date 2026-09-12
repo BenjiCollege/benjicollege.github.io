@@ -14,7 +14,7 @@ const BANNER: Line[] = [
   { kind: 'accent', text: "Benji's terminal — type `help` to get started." },
 ]
 
-const SECTIONS = ['about', 'projects', 'writing', 'github-stats', 'playground', 'photography', 'contact']
+const SECTIONS = ['about', 'experience', 'projects', 'github-stats', 'playground', 'chat', 'photography', 'contact']
 
 function run(raw: string): Line[] | 'clear' {
   const [cmd, ...args] = raw.trim().split(/\s+/)
@@ -114,13 +114,13 @@ export function Terminal() {
 
   const submit = () => {
     const entry: Line = { kind: 'in', text: value }
-    const result = run(value)
-    if (value.trim()) setHistory((h) => [value, ...h])
+    const result = run(value.slice(0, 500))
+    if (value.trim()) setHistory((h) => [value.slice(0, 500), ...h].slice(0, 100))
     setHIdx(-1)
     if (result === 'clear') {
       setLines([])
     } else {
-      setLines((prev) => [...prev, entry, ...result])
+      setLines((prev) => [...prev, entry, ...result].slice(-300))
     }
     setValue('')
   }
@@ -176,23 +176,24 @@ export function Terminal() {
             ))}
 
             {/* live input line */}
-            <div className="flex items-center text-[var(--color-fg)]">
-              <span className="shrink-0 text-[var(--color-accent-2)]">{PROMPT}&nbsp;</span>
+            <div className="flex flex-wrap items-center text-[var(--color-fg)]">
+              <span className="text-[var(--color-accent-2)] break-all">{PROMPT}&nbsp;</span>
               <input
                 ref={inputRef}
                 value={value}
+                maxLength={500}
                 onChange={(e) => setValue(e.target.value)}
                 onKeyDown={onKeyDown}
                 spellCheck={false}
                 autoComplete="off"
                 aria-label="Terminal input"
-                className="w-full bg-transparent text-[var(--color-fg)] caret-[var(--color-accent)] outline-none"
+                className="min-h-11 min-w-24 flex-1 bg-transparent text-[var(--color-fg)] caret-[var(--color-accent)] outline-none"
               />
             </div>
           </div>
         </div>
         <p className="mt-3 text-center font-mono text-xs text-[var(--color-fg-dim)]">
-          a real shell — type <span className="text-[var(--color-accent)]">help</span> and hit enter
+          an interactive terminal — type <span className="text-[var(--color-accent)]">help</span> and hit enter
         </p>
       </Reveal>
     </section>

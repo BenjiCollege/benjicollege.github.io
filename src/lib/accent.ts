@@ -16,15 +16,17 @@ const KEY = 'portfolio-accent'
 export const ACCENT_EVENT = 'accentchange'
 
 export function getAccentName(): AccentName {
-  if (typeof localStorage === 'undefined') return 'cyan'
-  const stored = localStorage.getItem(KEY) as AccentName | null
-  return ACCENTS.some((a) => a.name === stored) ? (stored as AccentName) : 'cyan'
+  try {
+    const stored = localStorage.getItem(KEY) as AccentName | null
+    return ACCENTS.some((a) => a.name === stored) ? (stored as AccentName) : 'cyan'
+  } catch { return 'cyan' }
 }
 
 export function setAccent(name: AccentName, persist = true) {
   const accent = ACCENTS.find((a) => a.name === name) ?? ACCENTS[0]
-  document.documentElement.style.setProperty('--color-accent', accent.value)
-  if (persist) localStorage.setItem(KEY, accent.name)
+  const light = { cyan: '#007a73', violet: '#6540cf', pink: '#b72559', amber: '#8b5b00', green: '#237537' }
+  document.documentElement.style.setProperty('--color-accent', document.documentElement.dataset.theme === 'light' ? light[accent.name] : accent.value)
+  if (persist) { try { localStorage.setItem(KEY, accent.name) } catch { /* Optional persistence. */ } }
   window.dispatchEvent(new CustomEvent(ACCENT_EVENT, { detail: accent.name }))
 }
 

@@ -27,14 +27,16 @@ export function EasterEgg() {
 
   // Tab-title easter egg — nudge people who wander off.
   useEffect(() => {
-    const original = document.title
+    let original = document.title
     const onVisibility = () => {
-      document.title = document.hidden ? '👀 come back! — Benji' : original
+      if (document.hidden) {
+        original = document.title
+        document.title = '👀 come back! — Benji'
+      } else document.title = original
     }
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
       document.removeEventListener('visibilitychange', onVisibility)
-      document.title = original
     }
   }, [])
 

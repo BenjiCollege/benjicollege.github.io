@@ -52,6 +52,7 @@ export function Hero() {
         })
       }
 
+      if (reduce) return
       // Parallax background + content drift on scroll
       gsap.to('.hero-bg', {
         yPercent: 25,
@@ -88,20 +89,20 @@ export function Hero() {
           Gerardo · "Benji" · Colegio
         </p>
 
-        <h1 className="hero-title display font-display font-bold leading-[0.85]">
-          <span className="block overflow-hidden pb-[0.05em]">
+        <h1 aria-label="Software developer" className="hero-title display font-display font-bold leading-[0.85]">
+          <span aria-hidden="true" className="block overflow-hidden pb-[0.05em]">
             <Chars text="SOFTWARE" />
           </span>
           {/* Gradient text can't be split into per-char spans (the glyphs
               would render transparent), so this line reveals as one unit. */}
-          <span className="block overflow-hidden pb-[0.05em]">
+          <span aria-hidden="true" className="block overflow-hidden pb-[0.05em]">
             <span className="hero-grad inline-block text-gradient">DEVELOPER</span>
           </span>
         </h1>
 
         <p className="hero-role mx-auto mt-7 max-w-xl text-base text-[var(--color-fg-dim)] sm:text-lg">
-          I build things for the web — and I have a little too much fun with the
-          animations. Scroll down, it gets weird.
+          I’m Benji. I build for the web with React, TypeScript, and a soft spot
+          for playful interactions. Explore my projects, then stay for the animations.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -120,6 +121,7 @@ export function Hero() {
             Enter the playground
           </MagneticLink>
         </div>
+        <a href="#contact" className="hero-cta mt-6 inline-block text-sm underline decoration-[var(--color-accent)] underline-offset-4">Have something in mind? Let’s talk.</a>
       </div>
 
       <div className="hero-cue absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--color-fg-dim)]">

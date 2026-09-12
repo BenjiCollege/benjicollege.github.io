@@ -1,7 +1,7 @@
-import { useRef, type ElementType, type ReactNode } from 'react'
+import { useRef, type ElementType, type ReactNode, type HTMLAttributes, type AnchorHTMLAttributes } from 'react'
 import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
 
-type Props = {
+type Props = HTMLAttributes<HTMLElement> & Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'> & {
   children: ReactNode
   className?: string
   /** stagger children instead of the element itself */
@@ -22,6 +22,7 @@ export function Reveal({
   y = 40,
   delay = 0,
   as: Tag = 'div',
+  ...rest
 }: Props) {
   const ref = useRef<HTMLElement>(null)
 
@@ -55,7 +56,7 @@ export function Reveal({
   )
 
   return (
-    <Tag ref={ref} className={className}>
+    <Tag {...rest} ref={ref} className={className}>
       {children}
     </Tag>
   )

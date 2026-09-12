@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { isTouch, prefersReducedMotion } from '../lib/gsap'
+import { useReducedMotion, useTheme } from '../lib/preferences'
 
 // A slow, living "nebula" behind everything — domain-warped fbm noise tinted in
 // the brand palette over a near-black base. One half-resolution full-screen
@@ -15,6 +16,7 @@ uniform float uTime;
 uniform vec3 uA; // accent
 uniform vec3 uB; // accent-2
 uniform vec3 uC; // accent-3
+uniform vec3 uBase;
 
 // hash + value noise + fbm
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -41,7 +43,7 @@ void main(){
   vec2 r = vec2(fbm(p + 1.8*q + vec2(1.7, 9.2)), fbm(p + 1.8*q + vec2(8.3, 2.8)));
   float f = fbm(p + 2.0*r);
 
-  vec3 base = vec3(0.051, 0.067, 0.090); // ~ --color-bg
+  vec3 base = uBase;
   vec3 col = base;
   col = mix(col, uA, smoothstep(0.35, 0.95, f) * 0.5);
   col = mix(col, uB, smoothstep(0.55, 1.0, length(r)) * 0.45);
@@ -69,6 +71,8 @@ function compile(gl: WebGLRenderingContext, type: number, src: string) {
 }
 
 export function AuroraBackground() {
+  const reduced = useReducedMotion()
+  const theme = useTheme()
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -100,13 +104,16 @@ export function AuroraBackground() {
       a: gl.getUniformLocation(prog, 'uA'),
       b: gl.getUniformLocation(prog, 'uB'),
       c: gl.getUniformLocation(prog, 'uC'),
+      base: gl.getUniformLocation(prog, 'uBase'),
     }
 
     const readAccent = () => {
       const cs = getComputedStyle(document.documentElement)
+      gl.uniform3fv(u.base, hexToRgb(cs.getPropertyValue('--color-bg').trim() || '#0d1117'))
       gl.uniform3fv(u.a, hexToRgb(cs.getPropertyValue('--color-accent').trim() || '#2ee6d6'))
       gl.uniform3fv(u.b, hexToRgb(cs.getPropertyValue('--color-accent-2').trim() || '#7c5cff'))
       gl.uniform3fv(u.c, hexToRgb(cs.getPropertyValue('--color-accent-3').trim() || '#ff5c8a'))
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
     }
 
     const SCALE = 0.5 // render at half-res; it's a soft blur anyway
@@ -149,9 +156,12 @@ export function AuroraBackground() {
       window.removeEventListener('resize', resize)
       window.removeEventListener('accentchange', readAccent)
       document.removeEventListener('visibilitychange', onVis)
-      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      gl.deleteBuffer(buf)
+      gl.deleteProgram(prog)
+      gl.deleteShader(vs)
+      gl.deleteShader(fs)
     }
-  }, [])
+  }, [reduced, theme])
 
   return (
     <canvas

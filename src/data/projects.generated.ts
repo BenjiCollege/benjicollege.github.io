@@ -14,26 +14,106 @@ export type GeneratedProject = {
 
 export const generatedProjects: GeneratedProject[] = [
   {
-    "slug": "Discord-Example",
-    "title": "Discord Example",
-    "blurb": "",
+    "slug": "verso",
+    "title": "Verso",
+    "blurb": "A block-based notes app for iOS and iPadOS. Every feature free, no server, no accounts. Written from a specification; not yet compiled.",
     "tech": [
-      "JavaScript"
+      "Swift",
+      "Shell"
     ],
-    "image": "/projects/gh-discord-example.png",
+    "image": "/projects/gh-verso.png",
     "live": "",
-    "source": "https://github.com/BenjiCollege/Discord-Example",
-    "stars": 1
+    "source": "https://github.com/BenjiCollege/verso",
+    "stars": 0
   },
   {
-    "slug": "BenjiCollege",
-    "title": "BenjiCollege",
-    "blurb": "Hi this is my personal repository about me",
-    "tech": [],
-    "image": "/projects/gh-benjicollege.png",
+    "slug": "origin",
+    "title": "Origin",
+    "blurb": "",
+    "tech": [
+      "Swift",
+      "TypeScript",
+      "PLpgSQL",
+      "Python"
+    ],
+    "image": "",
     "live": "",
-    "source": "https://github.com/BenjiCollege/BenjiCollege",
+    "source": "https://github.com/BenjiCollege/origin",
     "stars": 0
+  },
+  {
+    "slug": "affordable-piano-tuning",
+    "title": "Affordable Piano Tuning",
+    "blurb": "",
+    "tech": [
+      "TypeScript",
+      "HTML",
+      "JavaScript",
+      "CSS"
+    ],
+    "image": "/projects/gh-affordable-piano-tuning.png",
+    "live": "https://affordable-piano-tuning.vercel.app",
+    "source": "https://github.com/BenjiCollege/affordable-piano-tuning",
+    "stars": 0
+  },
+  {
+    "slug": "machita-salsa",
+    "title": "Machita Salsa",
+    "blurb": "",
+    "tech": [
+      "JavaScript",
+      "PowerShell",
+      "CSS",
+      "HTML"
+    ],
+    "image": "/projects/gh-machita-salsa.png",
+    "live": "https://machita-salsa.vercel.app",
+    "source": "https://github.com/BenjiCollege/machita-salsa",
+    "stars": 0
+  },
+  {
+    "slug": "python-game-master",
+    "title": "Python Game Master",
+    "blurb": "",
+    "tech": [
+      "Python",
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "image": "/projects/gh-python-game-master.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/python-game-master",
+    "stars": 0
+  },
+  {
+    "slug": "pokemon-overworld",
+    "title": "Pokemon Overworld",
+    "blurb": "",
+    "tech": [
+      "JavaScript",
+      "CSS",
+      "HTML"
+    ],
+    "image": "",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/pokemon-overworld",
+    "stars": 0
+  },
+  {
+    "slug": "benjicollege.github.io",
+    "title": "Benjicollege Github Io",
+    "blurb": "",
+    "tech": [
+      "TypeScript",
+      "SCSS",
+      "Less",
+      "HTML"
+    ],
+    "image": "/projects/gh-benjicollege.github.io.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/benjicollege.github.io",
+    "stars": 1
   },
   {
     "slug": "doyouwannagooutwithme-main",
@@ -57,10 +137,22 @@ export const generatedProjects: GeneratedProject[] = [
       "HTML",
       "CSS"
     ],
-    "image": "",
+    "image": "/projects/gh-photo-web.png",
     "live": "",
     "source": "https://github.com/BenjiCollege/photo-web",
-    "stars": 0
+    "stars": 1
+  },
+  {
+    "slug": "Discord-Example",
+    "title": "Discord Example",
+    "blurb": "",
+    "tech": [
+      "JavaScript"
+    ],
+    "image": "/projects/gh-discord-example.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/Discord-Example",
+    "stars": 1
   },
   {
     "slug": "javascriptGame",
@@ -72,7 +164,7 @@ export const generatedProjects: GeneratedProject[] = [
       "CSS",
       "HTML"
     ],
-    "image": "",
+    "image": "/projects/gh-javascriptgame.png",
     "live": "",
     "source": "https://github.com/BenjiCollege/javascriptGame",
     "stars": 0
@@ -86,10 +178,10 @@ export const generatedProjects: GeneratedProject[] = [
       "JavaScript",
       "CSS"
     ],
-    "image": "",
+    "image": "/projects/gh-calculator-dev.png",
     "live": "",
     "source": "https://github.com/BenjiCollege/calculator-dev",
-    "stars": 0
+    "stars": 1
   },
   {
     "slug": "python-adventure-game",
@@ -103,7 +195,7 @@ export const generatedProjects: GeneratedProject[] = [
     "image": "/projects/gh-python-adventure-game.png",
     "live": "",
     "source": "https://github.com/BenjiCollege/python-adventure-game",
-    "stars": 0
+    "stars": 1
   },
   {
     "slug": "draft-api",
@@ -115,10 +207,10 @@ export const generatedProjects: GeneratedProject[] = [
       "HTML",
       "CSS"
     ],
-    "image": "",
+    "image": "/projects/gh-draft-api.png",
     "live": "",
     "source": "https://github.com/BenjiCollege/draft-api",
-    "stars": 0
+    "stars": 1
   },
   {
     "slug": "node-2-main",
@@ -145,6 +237,87 @@ export const generatedProjects: GeneratedProject[] = [
     "image": "/projects/gh-calculator.png",
     "live": "",
     "source": "https://github.com/BenjiCollege/calculator",
+    "stars": 0
+  },
+  {
+    "slug": "responsive-grid",
+    "title": "Responsive Grid",
+    "blurb": "responsive-grid-extension-challenge",
+    "tech": [
+      "CSS",
+      "HTML"
+    ],
+    "image": "/projects/gh-responsive-grid.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/responsive-grid",
+    "stars": 0
+  },
+  {
+    "slug": "flexbox-challenge",
+    "title": "Flexbox Challenge",
+    "blurb": "flexbox challenge",
+    "tech": [
+      "HTML",
+      "CSS"
+    ],
+    "image": "/projects/gh-flexbox-challenge.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/flexbox-challenge",
+    "stars": 0
+  },
+  {
+    "slug": "buffalo",
+    "title": "Buffalo",
+    "blurb": "week 1 command line coding",
+    "tech": [],
+    "image": "/projects/gh-buffalo.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/buffalo",
+    "stars": 0
+  },
+  {
+    "slug": "jsChallenge",
+    "title": "JsChallenge",
+    "blurb": "",
+    "tech": [
+      "JavaScript"
+    ],
+    "image": "/projects/gh-jschallenge.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/jsChallenge",
+    "stars": 0
+  },
+  {
+    "slug": "flex-starter-code",
+    "title": "Flex Starter Code",
+    "blurb": "",
+    "tech": [
+      "HTML",
+      "CSS"
+    ],
+    "image": "/projects/gh-flex-starter-code.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/flex-starter-code",
+    "stars": 0
+  },
+  {
+    "slug": "nology-coursework",
+    "title": "Nology Coursework",
+    "blurb": "",
+    "tech": [],
+    "image": "/projects/gh-nology-coursework.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/nology-coursework",
+    "stars": 0
+  },
+  {
+    "slug": "second-git-repo",
+    "title": "Second Git Repo",
+    "blurb": "",
+    "tech": [],
+    "image": "/projects/gh-second-git-repo.png",
+    "live": "",
+    "source": "https://github.com/BenjiCollege/second-git-repo",
     "stars": 0
   }
 ]

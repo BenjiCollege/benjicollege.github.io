@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { gsap, useGSAP, ScrollTrigger, prefersReducedMotion } from '../lib/gsap'
+import { useReducedMotion } from '../lib/preferences'
 
 const stack = [
   'TypeScript', 'React', 'JavaScript', 'Node.js', 'Python', 'HTML', 'CSS',
@@ -61,6 +62,7 @@ function Row({ dir }: { dir: 1 | -1 }) {
 }
 
 export function TechStack() {
+  const reduced = useReducedMotion()
   return (
     <section id="stack" className="border-y border-[var(--color-line)] bg-[var(--color-surface)]/40 py-16">
       <div className="mb-6 px-6">
@@ -68,8 +70,7 @@ export function TechStack() {
           // the toolbox
         </p>
       </div>
-      <Row dir={1} />
-      <Row dir={-1} />
+      {reduced ? <ul className="mx-auto flex max-w-6xl flex-wrap gap-4 px-6">{stack.map(item => <li className="rounded-full border border-[var(--color-line)] px-4 py-2" key={item}>{item}</li>)}</ul> : <><div aria-hidden="true"><Row dir={1} /><Row dir={-1} /></div><p className="sr-only">{stack.join(', ')}</p></>}
     </section>
   )
 }

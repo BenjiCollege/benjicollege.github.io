@@ -44,10 +44,12 @@ export function About() {
             part.
           </h2>
           <p className="max-w-xl text-lg text-[var(--color-fg-dim)]">
-            I'm a software developer shipping real products by day. I came up
+            I'm a software developer exploring the space between useful tools and playful interfaces. I came up
             through <a className="text-[var(--color-fg)] underline decoration-[var(--color-accent)] underline-offset-4" href="https://us.nology.io/" target="_blank" rel="noreferrer">_nology</a>,
             fell in love with building for the browser, and never looked back.
           </p>
+          <p className="max-w-xl text-lg text-[var(--color-fg-dim)]">At APRO, I work on the web and membership experience: websites, onboarding, data, and the integrations that keep things moving. Outside work, I build interactive sites and games, explore SwiftUI, and bring a Teamfight Tactics Grandmaster’s curiosity to game systems.</p>
+          <a href="/#experience" className="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-accent)]">Follow my career timeline ↓</a>
           <p className="max-w-xl text-lg text-[var(--color-fg-dim)]">
             When I'm not writing code I'm behind a camera or deep in a game.
             This site is my playground — every animation here is something I

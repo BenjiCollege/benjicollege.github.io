@@ -14,13 +14,15 @@
 // Optional: set GITHUB_TOKEN in your env for higher API rate limits.
 
 import sharp from 'sharp'
-import { writeFile, mkdir } from 'node:fs/promises'
+import { writeFile, mkdir, access } from 'node:fs/promises'
 import path from 'node:path'
+import { publicHttpsUrl, safeRepoName } from './security-utils.mjs'
 
 const USER = 'BenjiCollege'
-const TOP_N = 10
+const TOP_N = 30
+const metadataOnly = process.argv.includes('--metadata-only')
 // Repos to never feature: the portfolio itself + the GitHub profile-README repo.
-const EXCLUDE = new Set(['benjicollege.github.io', 'bs-portfolio', 'benjicollege'])
+const EXCLUDE = new Set(['bs-portfolio', 'benjicollege'])
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const OUT_DIR = path.join(ROOT, 'public', 'projects')
@@ -34,18 +36,19 @@ const gh = (extra = {}) => ({
 })
 
 async function getRepos() {
-  const res = await fetch(`https://api.github.com/users/${USER}/repos?per_page=100&sort=pushed`, gh())
+  const res = await fetch(`https://api.github.com/users/${USER}/repos?per_page=100&sort=pushed`, { ...gh(), signal: AbortSignal.timeout(15000), redirect: 'error' })
   if (!res.ok) throw new Error(`GitHub repos fetch failed (${res.status}). ${res.status === 403 ? 'Rate-limited — set GITHUB_TOKEN.' : ''}`)
   const repos = await res.json()
   return repos
-    .filter((r) => !r.fork && !r.archived && !EXCLUDE.has(r.name.toLowerCase()))
-    .sort((a, b) => b.stargazers_count - a.stargazers_count || new Date(b.pushed_at) - new Date(a.pushed_at))
+    .filter((r) => safeRepoName(r.name) && r.owner?.login?.toLowerCase() === USER.toLowerCase() && r.private === false && !r.fork && !r.archived && !EXCLUDE.has(r.name.toLowerCase()))
+    .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
     .slice(0, TOP_N)
 }
 
 async function getLanguages(repo) {
   try {
-    const res = await fetch(repo.languages_url, gh())
+    // Never send GITHUB_TOKEN to an endpoint supplied by metadata or a redirect.
+    const res = await fetch(`https://api.github.com/repos/${USER}/${encodeURIComponent(repo.name)}/languages`, { ...gh(), signal: AbortSignal.timeout(15000), redirect: 'error' })
     if (!res.ok) return []
     return Object.keys(await res.json()).slice(0, 4)
   } catch {
@@ -56,12 +59,13 @@ async function getLanguages(repo) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function fetchImage(url, attempts = 3) {
+  if (!['image.thum.io', 'opengraph.githubassets.com'].includes(new URL(url).hostname)) throw new Error('Unexpected image host')
   for (let i = 0; i < attempts; i++) {
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 20000)
     try {
-      const ctrl = new AbortController()
-      const timer = setTimeout(() => ctrl.abort(), 20000)
       const res = await fetch(url, {
-        redirect: 'follow',
+        redirect: 'error',
         signal: ctrl.signal,
         headers: {
           // many image hosts reject non-browser user agents
@@ -70,13 +74,23 @@ async function fetchImage(url, attempts = 3) {
           Accept: 'image/avif,image/webp,image/png,image/*,*/*;q=0.8',
         },
       })
-      clearTimeout(timer)
-      if (res.ok) {
-        const buf = Buffer.from(await res.arrayBuffer())
-        if (buf.byteLength > 2000) return buf // guard against tiny error/placeholder images
+      const maxBytes = 5 * 1024 * 1024
+      if (res.ok && /^image\/(png|jpeg|webp|avif)(?:;|$)/i.test(res.headers.get('content-type') ?? '') && Number(res.headers.get('content-length') ?? 0) <= maxBytes && res.body) {
+        const chunks = []
+        let size = 0
+        for await (const chunk of res.body) {
+          size += chunk.length
+          if (size > maxBytes) { ctrl.abort(); throw new Error('Image exceeds size limit') }
+          chunks.push(chunk)
+        }
+        if (size > 2000) return Buffer.concat(chunks)
+      } else {
+        await res.body?.cancel()
       }
     } catch {
       /* retry */
+    } finally {
+      clearTimeout(timer)
     }
     if (i < attempts - 1) await sleep(1200)
   }
@@ -84,7 +98,7 @@ async function fetchImage(url, attempts = 3) {
 }
 
 async function getScreenshot(repo) {
-  const demo = repo.homepage && /^https?:\/\//i.test(repo.homepage) ? repo.homepage : null
+  const demo = publicHttpsUrl(repo.homepage)
   if (demo) {
     // free, no-auth live-site screenshot service
     const shot = await fetchImage(`https://image.thum.io/get/width/1200/crop/760/noanimate/${demo}`)
@@ -112,12 +126,17 @@ async function run() {
   const projects = []
   for (const repo of repos) {
     const tech = await getLanguages(repo)
-    const shot = await getScreenshot(repo)
+    const shot = metadataOnly ? null : await getScreenshot(repo)
 
     let image = ''
+    try {
+      const file = `gh-${repo.name.toLowerCase()}.png`
+      await access(path.join(OUT_DIR, file))
+      image = `/projects/${file}`
+    } catch { /* A typographic project cover is the fallback. */ }
     if (shot) {
       const file = `gh-${repo.name.toLowerCase()}.png`
-      await sharp(shot.buf)
+      await sharp(shot.buf, { limitInputPixels: 16_000_000 })
         .resize({ width: 1100, withoutEnlargement: true })
         .png({ compressionLevel: 9, quality: 90, palette: true })
         .toFile(path.join(OUT_DIR, file))
@@ -130,12 +149,12 @@ async function run() {
       blurb: repo.description || '',
       tech,
       image,
-      live: repo.homepage && /^https?:\/\//i.test(repo.homepage) ? repo.homepage : '',
-      source: repo.html_url,
+      live: publicHttpsUrl(repo.homepage),
+      source: `https://github.com/${USER}/${encodeURIComponent(repo.name)}`,
       stars: repo.stargazers_count,
     })
     console.log(`  ✓ ${repo.name.padEnd(28)} ${tech.join(', ') || '—'}  [${shot?.kind ?? 'no image'}]`)
-    await sleep(400) // be gentle with the image hosts
+    if (!metadataOnly) await sleep(400) // be gentle with the image hosts
   }
 
   const file = `// AUTO-GENERATED by scripts/generate-projects.mjs — do not edit by hand.

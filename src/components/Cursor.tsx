@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { gsap, useGSAP, isTouch, prefersReducedMotion } from '../lib/gsap'
+import { useReducedMotion } from '../lib/preferences'
 
 /**
  * Contextual cursor: a trailing dot + lagging ring. Over interactive elements
@@ -10,6 +11,7 @@ import { gsap, useGSAP, isTouch, prefersReducedMotion } from '../lib/gsap'
  * moving between a card's children — image, text, tags — never flickers/resets.
  */
 export function Cursor() {
+  const reduced = useReducedMotion()
   const dot = useRef<HTMLDivElement>(null)
   const ring = useRef<HTMLDivElement>(null)
   const label = useRef<HTMLSpanElement>(null)
@@ -69,7 +71,7 @@ export function Cursor() {
   }, [])
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[100] hidden md:block">
+    <div aria-hidden className={`pointer-events-none fixed inset-0 z-[100] hidden ${reduced ? '' : 'md:block'}`}>
       <div
         ref={ring}
         className="fixed left-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border"

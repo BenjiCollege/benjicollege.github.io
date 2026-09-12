@@ -1,6 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap, useGSAP, ScrollTrigger, prefersReducedMotion } from '../lib/gsap'
 import { Reveal } from '../components/Reveal'
+import { useReducedMotion } from '../lib/preferences'
+import { Dialog } from '../components/Dialog'
 
 const onset = Array.from({ length: 33 }, (_, i) => `/photography/onset/image${i + 1}.jpg`)
 const sports = [
@@ -19,9 +21,23 @@ const pics = mixed.slice(0, 24)
 const rowA = pics.filter((_, i) => i % 2 === 0)
 const rowB = pics.filter((_, i) => i % 2 === 1)
 
+// Reserve each frame's real proportions before its lazy image has decoded.
+function photoHeight(src: string) {
+  if (src.endsWith('/CF6A9073.jpg')) return 1920
+  if (src.endsWith('/CF6A9016.jpg')) return 867
+  if (src.includes('/onset/')) return /\/image(?:1|8)\.jpg$/.test(src) ? 853 : 854
+  return src.includes('361884A1') ? 854 : 853
+}
+
 /** One infinite, velocity-reactive marquee row of photos. */
-function Row({ items, dir, onOpen }: { items: string[]; dir: 1 | -1; onOpen: (s: string) => void }) {
+function Row({ items, dir, onOpen, paused, preload }: { items: string[]; dir: 1 | -1; onOpen: (s: string) => void; paused: boolean; preload: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
+  const reduced = useReducedMotion()
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const isPaused = paused || hovered || focused
+  const pauseRef = useRef(isPaused)
+  pauseRef.current = isPaused
 
   useGSAP(
     () => {
@@ -43,44 +59,43 @@ function Row({ items, dir, onOpen }: { items: string[]; dir: 1 | -1; onOpen: (s:
           (target = gsap.utils.clamp(1, 6, 1 + Math.abs(self.getVelocity()) / 400)),
       })
       const decay = () => {
+        if (pauseRef.current) { tween.timeScale(0); return }
         tween.timeScale(tween.timeScale() + (target - tween.timeScale()) * 0.06)
         target += (1 - target) * 0.04
       }
       gsap.ticker.add(decay)
 
-      // Pause the row while a photo in it is hovered.
-      const enter = () => gsap.to(tween, { timeScale: 0, duration: 0.4, overwrite: 'auto' })
-      const leave = () => (target = 1)
-      el.addEventListener('pointerenter', enter)
-      el.addEventListener('pointerleave', leave)
-
       return () => {
         gsap.ticker.remove(decay)
-        el.removeEventListener('pointerenter', enter)
-        el.removeEventListener('pointerleave', leave)
       }
     },
     { scope: ref },
   )
 
   // Duplicate for a seamless loop.
-  const loop = [...items, ...items]
+  const loop = reduced ? items : [...items, ...items]
   return (
-    <div className="flex overflow-hidden">
-      <div ref={ref} className="flex shrink-0 gap-4 pr-4">
+    <div className={reduced ? 'overflow-x-auto px-6 py-2' : 'flex overflow-hidden'}>
+      <div ref={ref} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocus={() => setFocused(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false) }} className="flex shrink-0 gap-4 pr-4">
         {loop.map((src, i) => (
           <button
             key={i}
+            tabIndex={i >= items.length ? -1 : 0}
+            aria-hidden={i >= items.length || undefined}
+            aria-label={`Enlarge ${photoCaption(src)}`}
             onClick={() => onOpen(src)}
             data-cursor-label="OPEN"
+            style={{ aspectRatio: `1280 / ${photoHeight(src)}` }}
             className="group relative h-[clamp(180px,26vh,300px)] shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)]"
           >
             <img
               src={src}
-              alt="Photography by Gerardo Colegio"
-              loading="lazy"
+              alt={photoCaption(src)}
+              width={1280}
+              height={photoHeight(src)}
+              loading={preload ? 'eager' : 'lazy'}
               decoding="async"
-              className="h-full w-auto max-w-none object-cover transition-transform duration-700 group-hover:scale-110"
+              className="h-full w-full max-w-none object-cover transition-transform duration-700 group-hover:scale-110"
             />
             <div className="pointer-events-none absolute inset-0 bg-[var(--color-ink)]/0 transition-colors duration-500 group-hover:bg-[var(--color-ink)]/15" />
           </button>
@@ -93,6 +108,19 @@ function Row({ items, dir, onOpen }: { items: string[]; dir: 1 | -1; onOpen: (s:
 export function Photography() {
   const root = useRef<HTMLElement>(null)
   const [active, setActive] = useState<string | null>(null)
+  const [paused, setPaused] = useState(false)
+  const reduced = useReducedMotion()
+
+  const [preload, setPreload] = useState(false)
+  useEffect(() => {
+    // Load both copies before the moving reels enter view, instead of waiting
+    // for offscreen transformed frames to trigger native lazy loading.
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setPreload(true); observer.disconnect() }
+    }, { rootMargin: '600px' })
+    observer.observe(root.current!)
+    return () => observer.disconnect()
+  }, [])
 
   useGSAP(
     () => {
@@ -117,37 +145,34 @@ export function Photography() {
             I also shoot <span className="text-gradient">photos</span>.
           </Reveal>
           <Reveal as="p" className="mt-4 text-lg text-[var(--color-fg-dim)]">
-            Sports, sets, and travel. The reels run on their own — hover to pause
-            a row, tap any frame to enlarge.
+            Sports and moments behind the scenes. {reduced ? 'Browse each row and select a frame to enlarge.' : 'Hover or focus a row to pause. Select any frame for a closer look.'}
           </Reveal>
+          {!reduced && <button aria-pressed={paused} onClick={() => setPaused(!paused)} className="preference-button mt-5">{paused ? 'Play photo reels' : 'Pause photo reels'}</button>}
         </div>
       </div>
 
       <div className="flex flex-col gap-4">
-        <Row items={rowA} dir={1} onOpen={setActive} />
-        <Row items={rowB} dir={-1} onOpen={setActive} />
+        <Row items={rowA} dir={1} onOpen={setActive} paused={paused || Boolean(active)} preload={preload} />
+        <Row items={rowB} dir={-1} onOpen={setActive} paused={paused || Boolean(active)} preload={preload} />
       </div>
 
       {/* Lightbox */}
       {active && (
-        <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-[var(--color-ink)]/90 p-6 backdrop-blur"
-          onClick={() => setActive(null)}
-          data-cursor
-        >
+        <Dialog label={photoCaption(active)} onClose={() => setActive(null)} className="photo-dialog">
+          <div className="mb-4 flex items-center justify-between gap-4"><p className="text-sm">{photoCaption(active)} · Gerardo Colegio</p><button autoFocus onClick={() => setActive(null)} aria-label="Close photograph" className="preference-button">Close ✕</button></div>
           <img
             src={active}
-            alt="Enlarged"
-            className="max-h-[90vh] max-w-full rounded-xl border border-[var(--color-line)] shadow-2xl"
+            alt={photoCaption(active)}
+            className="mx-auto max-h-[75vh] max-w-full rounded-xl border border-[var(--color-line)] shadow-2xl"
           />
-          <button
-            className="absolute right-6 top-6 font-mono text-sm text-[var(--color-fg-dim)] hover:text-[var(--color-fg)]"
-            aria-label="Close"
-          >
-            close ✕
-          </button>
-        </div>
+        </Dialog>
       )}
     </section>
   )
+}
+
+function photoCaption(src: string) {
+  if (src.endsWith('/CF6A3607.jpg')) return 'Football teams lining up before the snap'
+  if (src.endsWith('/onset/image1.jpg')) return 'Crew preparing a green-screen studio set'
+  return src.includes('/sports/') ? `Sports collection, frame ${sports.indexOf(src) + 1}` : `Behind the scenes, frame ${onset.indexOf(src) + 1}`
 }

@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { gsap, useGSAP } from '../lib/gsap'
+import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
 
 /** A thin gradient bar at the top that tracks page scroll progress. */
 export function ScrollProgress() {
@@ -11,7 +11,7 @@ export function ScrollProgress() {
       {
         scaleX: 1,
         ease: 'none',
-        scrollTrigger: { start: 0, end: 'max', scrub: 0.3 },
+        scrollTrigger: { start: 0, end: 'max', scrub: prefersReducedMotion() ? true : 0.3 },
       },
     )
   }, [])

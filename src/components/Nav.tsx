@@ -1,47 +1,62 @@
-import { useRef, useState } from 'react'
-import { gsap, useGSAP, ScrollTrigger } from '../lib/gsap'
+import { useRef, useState, useEffect } from 'react'
+import { gsap, useGSAP, ScrollTrigger, prefersReducedMotion } from '../lib/gsap'
 import { MagneticLink } from './MagneticLink'
 import { Icon } from './Icon'
 
 const links = [
-  { label: 'Work', href: '#projects' },
-  { label: 'Code', href: '#github-stats' },
-  { label: 'Playground', href: '#playground' },
-  { label: 'Writing', href: '#writing' },
-  { label: 'Photos', href: '#photography' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Work', href: '/#projects' },
+  { label: 'Journey', href: '/#experience' },
+  { label: 'Playground', href: '/#playground' },
+  { label: 'Photos', href: '/#photography' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 export function Nav() {
   const nav = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
+  useEffect(() => {
+    const close = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [])
 
   useGSAP(
     () => {
+      if (prefersReducedMotion()) { gsap.set(nav.current, { yPercent: 0 }); return }
       // Hide on scroll-down, reveal on scroll-up.
       const showHide = gsap.fromTo(
         nav.current,
         { yPercent: 0 },
         { yPercent: -130, duration: 0.3, paused: true },
       )
+      const show = () => { showHide.reverse(); setOpen(false) }
+      window.addEventListener('portfolio-navigate', show)
+      window.addEventListener('hashchange', show)
       ScrollTrigger.create({
         start: 'top -120',
         end: 'max',
         onUpdate: (self) => {
-          if (self.direction === 1) showHide.play()
+          if (window.scrollY < 140 || open || nav.current?.contains(document.activeElement)) showHide.reverse()
+          else if (self.direction === 1) showHide.play()
           else showHide.reverse()
         },
       })
+      if (open || window.scrollY < 140) showHide.reverse()
+      return () => {
+        window.removeEventListener('portfolio-navigate', show)
+        window.removeEventListener('hashchange', show)
+      }
     },
-    { scope: nav },
+    { scope: nav, dependencies: [open] },
   )
 
   return (
     <nav
+      aria-label="Main navigation"
       ref={nav}
       className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-5 py-4 md:px-10 md:py-6"
     >
-      <a href="#top" className="flex items-center gap-2" data-cursor aria-label="Home">
+      <a href="/#top" className="flex items-center gap-2" data-cursor aria-label="Home">
         <span className="font-mono text-sm font-bold text-[var(--color-accent)]">{'</>'}</span>
         <span className="font-display text-lg font-bold tracking-tight">Benji</span>
       </a>
@@ -77,6 +92,7 @@ export function Nav() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Toggle menu"
         aria-expanded={open}
+        aria-controls="mobile-navigation"
       >
         <span
           className="h-0.5 w-6 bg-[var(--color-fg)] transition-transform"
@@ -90,7 +106,7 @@ export function Nav() {
 
       {/* Mobile sheet */}
       {open && (
-        <div className="fixed inset-x-4 top-20 flex flex-col gap-1 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-3 md:hidden">
+        <div id="mobile-navigation" className="fixed inset-x-4 top-20 flex flex-col gap-1 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-3 md:hidden">
           {links.map((l) => (
             <a
               key={l.href}

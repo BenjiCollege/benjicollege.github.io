@@ -4,6 +4,8 @@ import { socials, EMAIL } from '../data/socials'
 import { ACCENTS, setAccent } from '../lib/accent'
 import { scrollToId } from '../lib/scroll'
 import { OPEN_PALETTE_EVENT } from './FloatingDock'
+import { Dialog } from './Dialog'
+import { navigate } from '../lib/navigation'
 
 type Cmd = {
   id: string
@@ -18,16 +20,22 @@ function useCommands(close: () => void): Cmd[] {
   return useMemo(() => {
     const go = (id: string) => () => {
       close()
-      scrollToId(id)
+      // Wait for the dialog to restore focus and restart smooth scrolling.
+      // Starting before its cleanup lets Lenis.start() reset the destination.
+      requestAnimationFrame(() => {
+        if (location.pathname !== '/') navigate(`/#${id}`)
+        else scrollToId(id)
+      })
     }
     const nav: Cmd[] = [
       { id: 'top', label: 'Go to top', group: 'Navigate', run: go('top') },
       { id: 'about', label: 'About', group: 'Navigate', run: go('about') },
+      { id: 'experience', label: 'Career timeline / Résumé', keywords: 'journey resume experience education', group: 'Navigate', run: go('experience') },
+      { id: 'chat', label: 'Simulated stream chat', keywords: 'twitch emotes raid', group: 'Navigate', run: go('chat') },
       { id: 'projects', label: 'Work / Projects', group: 'Navigate', run: go('projects') },
       { id: 'playground', label: 'Animation playground', group: 'Navigate', run: go('playground') },
       { id: 'terminal', label: 'Terminal', group: 'Navigate', run: go('terminal') },
-      { id: 'writing', label: 'Writing', group: 'Navigate', run: go('writing') },
-      { id: 'github', label: 'GitHub activity', group: 'Navigate', run: go('github-stats') },
+      { id: 'github', label: 'Currently building', group: 'Navigate', run: go('github-stats') },
       { id: 'photography', label: 'Photography', group: 'Navigate', run: go('photography') },
       { id: 'contact', label: 'Contact', group: 'Navigate', run: go('contact') },
     ]
@@ -44,13 +52,12 @@ function useCommands(close: () => void): Cmd[] {
         },
       },
       {
-        id: 'contact',
+        id: 'send-message',
         label: 'Send me a message',
         group: 'Actions',
         keywords: 'email form contact hire',
         run: () => {
-          close()
-          scrollToId('contact')
+          go('contact')()
         },
       },
     ]
@@ -100,6 +107,7 @@ export function CommandPalette() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        if (document.querySelector('dialog[open]') && !open) return
         e.preventDefault()
         setOpen((v) => !v)
       }
@@ -112,19 +120,13 @@ export function CommandPalette() {
       window.removeEventListener('keydown', onKey)
       window.removeEventListener(OPEN_PALETTE_EVENT, onOpen)
     }
-  }, [])
+  }, [open])
 
   // Reset + focus on open; lock background scroll.
   useEffect(() => {
     if (!open) return
     setQuery('')
     setActive(0)
-    const t = setTimeout(() => input.current?.focus(), 20)
-    document.documentElement.style.overflow = 'hidden'
-    return () => {
-      clearTimeout(t)
-      document.documentElement.style.overflow = ''
-    }
   }, [open])
 
   useEffect(() => setActive(0), [query])
@@ -137,7 +139,6 @@ export function CommandPalette() {
         { y: 16, scale: 0.97, opacity: 0 },
         { y: 0, scale: 1, opacity: 1, duration: 0.3, ease: 'power3.out' },
       )
-      gsap.fromTo('.cmd-scrim', { opacity: 0 }, { opacity: 1, duration: 0.3 })
     },
     { scope: root, dependencies: [open] },
   )
@@ -165,13 +166,14 @@ export function CommandPalette() {
   if (!open) return null
 
   return (
-    <div ref={root} className="fixed inset-0 z-[150] flex items-start justify-center px-4 pt-[12vh]">
-      <div className="cmd-scrim absolute inset-0 bg-[var(--color-ink)]/70 backdrop-blur-sm" onClick={close} />
-
-      <div className="cmd-panel relative w-full max-w-xl overflow-hidden rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] shadow-2xl">
+    <Dialog label="Command palette" onClose={close}>
+    <div ref={root}>
+      <div className="cmd-panel relative w-full overflow-hidden rounded-2xl bg-[var(--color-surface)]">
         <div className="flex items-center gap-3 border-b border-[var(--color-line)] px-4">
           <span className="font-mono text-sm text-[var(--color-accent)]">⌘</span>
           <input
+            autoFocus
+            aria-label="Search commands"
             ref={input}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -179,7 +181,7 @@ export function CommandPalette() {
             placeholder="Jump to, copy, open, recolor…"
             className="w-full bg-transparent py-4 text-base text-[var(--color-fg)] outline-none placeholder:text-[var(--color-fg-dim)]"
           />
-          <kbd className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-fg-dim)]">esc</kbd>
+          <button aria-label="Close command palette" onClick={close} className="min-h-11 min-w-11 rounded text-sm text-[var(--color-fg-dim)]">✕</button>
         </div>
 
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
@@ -216,5 +218,6 @@ export function CommandPalette() {
         </div>
       </div>
     </div>
+    </Dialog>
   )
 }

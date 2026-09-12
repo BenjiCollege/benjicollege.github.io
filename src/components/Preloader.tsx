@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
+import { useReducedMotion } from '../lib/preferences'
 
 const SEEN_KEY = 'portfolio-preloaded'
 
@@ -9,10 +10,16 @@ const SEEN_KEY = 'portfolio-preloaded'
  * is skipped entirely under reduced-motion.
  */
 export function Preloader() {
+  const reduced = useReducedMotion()
+  const seen = () => { try { return sessionStorage.getItem(SEEN_KEY) === '1' } catch { return false } }
+  const finish = () => {
+    try { sessionStorage.setItem(SEEN_KEY, '1') } catch { /* Optional. */ }
+    setDone(true)
+  }
   const skip =
     typeof window === 'undefined' ||
     prefersReducedMotion() ||
-    sessionStorage.getItem(SEEN_KEY) === '1'
+    seen() || Boolean(window.location.hash)
 
   const [done, setDone] = useState(skip)
   const root = useRef<HTMLDivElement>(null)
@@ -21,7 +28,7 @@ export function Preloader() {
 
   useGSAP(
     () => {
-      if (skip) return
+      if (skip || done) return
       // Lock scroll while the loader is up.
       document.documentElement.style.overflow = 'hidden'
 
@@ -29,8 +36,7 @@ export function Preloader() {
       const tl = gsap.timeline({
         onComplete: () => {
           document.documentElement.style.overflow = ''
-          sessionStorage.setItem(SEEN_KEY, '1')
-          setDone(true)
+          finish()
         },
       })
 
@@ -50,11 +56,12 @@ export function Preloader() {
           duration: 0.9,
           ease: 'expo.inOut',
         })
+      return () => { document.documentElement.style.overflow = '' }
     },
-    { scope: root },
+    { scope: root, dependencies: [done] },
   )
 
-  if (done) return null
+  if (done || reduced) return null
 
   return (
     <div
@@ -79,6 +86,7 @@ export function Preloader() {
           />
         </div>
       </div>
+      <button onClick={finish} className="absolute bottom-8 rounded-full border border-[var(--color-line)] px-6 py-3 text-sm">Skip intro →</button>
     </div>
   )
 }

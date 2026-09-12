@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from 'react'
 import { gsap, useGSAP, Draggable, Flip, prefersReducedMotion } from '../lib/gsap'
 import { useMagnetic } from '../hooks/useMagnetic'
 import { Reveal } from '../components/Reveal'
+import { useReducedMotion } from '../lib/preferences'
 
 /** A titled demo tile. The label tells visitors *which* animation they're seeing. */
 function Demo({
@@ -47,8 +48,10 @@ function MagneticDemo() {
 /* 2 ─ Scramble ----------------------------------------------------------- */
 function ScrambleDemo() {
   const ref = useRef<HTMLDivElement>(null)
+  useGSAP(() => () => { if (ref.current) gsap.killTweensOf(ref.current.querySelector('.scramble')) }, { scope: ref })
   const run = () => {
     const el = ref.current!.querySelector('.scramble') as HTMLElement
+    if (prefersReducedMotion()) { el.textContent = 'DECODED!'; return }
     gsap.to(el, {
       duration: 1,
       scrambleText: { text: 'DECODED!', chars: 'upperCase', speed: 0.4 },
@@ -56,13 +59,16 @@ function ScrambleDemo() {
   }
   const reset = () => {
     const el = ref.current!.querySelector('.scramble') as HTMLElement
+    if (prefersReducedMotion()) { el.textContent = 'try me'; return }
     gsap.to(el, { duration: 0.8, scrambleText: { text: 'hover me', chars: '01' } })
   }
   return (
-    <div ref={ref} onPointerEnter={run} onPointerLeave={reset} data-cursor className="cursor-pointer">
+    <div ref={ref} onPointerEnter={run} onPointerLeave={reset}>
+      <button onClick={run} onFocus={run} onBlur={reset} className="min-h-11 px-4" aria-label="Decode scrambled text">
       <span className="scramble font-mono text-2xl font-bold text-[var(--color-accent-2)]">
-        hover me
+        try me
       </span>
+      </button>
     </div>
   )
 }
@@ -70,6 +76,7 @@ function ScrambleDemo() {
 /* 3 ─ Flip shuffle ------------------------------------------------------- */
 function FlipDemo() {
   const ref = useRef<HTMLDivElement>(null)
+  useGSAP(() => () => { if (ref.current) { Flip.killFlipsOf(ref.current.querySelectorAll('.flip-item')); gsap.killTweensOf(ref.current.querySelectorAll('.flip-item')) } }, { scope: ref })
   const [order, setOrder] = useState([0, 1, 2, 3, 4, 5])
   const colors = [
     'var(--color-accent)',
@@ -83,6 +90,7 @@ function FlipDemo() {
     const items = ref.current!.querySelectorAll('.flip-item')
     const state = Flip.getState(items)
     setOrder((o) => [...o].sort(() => Math.random() - 0.5))
+    if (prefersReducedMotion()) return
     requestAnimationFrame(() =>
       Flip.from(state, { duration: 0.6, ease: 'power3.inOut', stagger: 0.04 }),
     )
@@ -142,7 +150,12 @@ function DragDemo() {
 /* 5 ─ Stagger burst ------------------------------------------------------ */
 function StaggerDemo() {
   const ref = useRef<HTMLDivElement>(null)
+  useGSAP(() => {
+    if (prefersReducedMotion()) gsap.set('.dot', { scale: 1, opacity: 1 })
+    return () => { if (ref.current) gsap.killTweensOf(ref.current.querySelectorAll('.dot')) }
+  }, { scope: ref })
   const burst = () => {
+    if (prefersReducedMotion()) return
     gsap.fromTo(
       ref.current!.querySelectorAll('.dot'),
       { scale: 0, opacity: 0 },
@@ -172,12 +185,18 @@ function StaggerDemo() {
 /* 6 ─ Elastic squish ----------------------------------------------------- */
 function ElasticDemo() {
   const ref = useRef<HTMLButtonElement>(null)
-  const boing = () =>
+  useGSAP(() => {
+    if (prefersReducedMotion()) gsap.set(ref.current, { scale: 1 })
+    return () => { gsap.killTweensOf(ref.current) }
+  }, { scope: ref })
+  const boing = () => {
+    if (prefersReducedMotion()) return
     gsap.fromTo(
       ref.current,
       { scale: 0.6 },
       { scale: 1, duration: 1.1, ease: 'elastic.out(1.2,0.3)' },
     )
+  }
   return (
     <button
       ref={ref}
@@ -191,6 +210,7 @@ function ElasticDemo() {
 }
 
 export function Playground() {
+  const reduced = useReducedMotion()
   return (
     <section
       id="playground"
@@ -201,6 +221,7 @@ export function Playground() {
           <Reveal as="p" className="mb-3 font-mono text-xs uppercase tracking-[0.3em] text-[var(--color-accent-3)]">
             // the playground
           </Reveal>
+          {reduced && <p className="mt-4 text-sm text-[var(--color-accent)]">Reduced motion is on. These demos stay still; choose Full experience in Settings to play with every effect.</p>}
           <Reveal as="h2" className="heading">
             An animation <span className="text-gradient">playground</span>.
           </Reveal>

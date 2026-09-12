@@ -7,7 +7,8 @@ const KEY = 'portfolio-sound'
 export const SOUND_EVENT = 'soundchange'
 
 let ctx: AudioContext | null = null
-let enabled = typeof localStorage !== 'undefined' && localStorage.getItem(KEY) === '1'
+let enabled = false
+try { enabled = localStorage.getItem(KEY) === '1' } catch { /* Storage may be disabled. */ }
 let lastHover = 0
 
 function ensureCtx() {
@@ -48,7 +49,7 @@ export const sound = {
   },
   toggle(on: boolean) {
     enabled = on
-    if (typeof localStorage !== 'undefined') localStorage.setItem(KEY, on ? '1' : '0')
+    try { localStorage.setItem(KEY, on ? '1' : '0') } catch { /* Sound still works for this visit. */ }
     if (on) {
       ensureCtx()
       // confirmation chirp

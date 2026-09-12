@@ -6,7 +6,7 @@ export function Footer() {
           Crafted by <span className="text-[var(--color-fg)]">Gerardo Colegio</span> ·
           React + GSAP
         </p>
-        <a href="#top" className="font-mono transition-colors hover:text-[var(--color-fg)]" data-cursor>
+        <a href="/#top" className="font-mono transition-colors hover:text-[var(--color-fg)]" data-cursor>
           back to top ↑
         </a>
       </div>
